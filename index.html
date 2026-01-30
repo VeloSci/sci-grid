@@ -1,286 +1,325 @@
+
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SciGrid 20M Excel Pro</title>
+    <title>SciGrid Documentation</title>
     <style>
-        body,
-        html {
+        :root {
+            --bg-color: #0d1117;
+            --sidebar-bg: #161b22;
+            --text-color: #c9d1d9;
+            --accent-color: #58a6ff;
+            --border-color: #30363d;
+            --code-bg: #161b22;
+        }
+
+        body {
             margin: 0;
             padding: 0;
-            height: 100%;
-            overflow: hidden;
-            background: #0a0a0b;
-            font-family: 'Inter', sans-serif;
-        }
-
-        #grid-container {
-            width: 100vw;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
             height: 100vh;
+            overflow: hidden;
         }
 
-        /* Custom Scrollbar Styling */
-        #grid-container::-webkit-scrollbar {
-            width: 12px;
-            height: 12px;
+        /* Sidebar */
+        .sidebar {
+            width: 250px;
+            background-color: var(--sidebar-bg);
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            overflow-y: auto;
+            flex-shrink: 0;
         }
 
-        #grid-container::-webkit-scrollbar-track {
-            background: #0a0a0b;
+        .brand {
+            font-size: 20px;
+            font-weight: bold;
+            color: var(--accent-color);
+            margin-bottom: 30px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
 
-        #grid-container::-webkit-scrollbar-thumb {
-            background: #2a2a2e;
+        .nav-section {
+            margin-bottom: 20px;
+        }
+
+        .nav-title {
+            font-size: 12px;
+            text-transform: uppercase;
+            color: #8b949e;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .nav-link {
+            display: block;
+            padding: 8px 12px;
+            color: var(--text-color);
+            text-decoration: none;
             border-radius: 6px;
-            border: 3px solid #0a0a0b;
+            font-size: 14px;
+            margin-bottom: 2px;
+            cursor: pointer;
+            transition: background 0.2s;
         }
 
-        #grid-container::-webkit-scrollbar-thumb:hover {
-            background: #4facfe;
+        .nav-link:hover {
+            background-color: rgba(255, 255, 255, 0.05);
         }
 
-        #overlay {
+        .nav-link.active {
+            background-color: rgba(88, 166, 255, 0.1);
+            color: var(--accent-color);
+            font-weight: 500;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            padding: 40px;
+            overflow-y: auto;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h1 { font-size: 32px; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; margin-bottom: 20px; }
+        h2 { font-size: 24px; margin-top: 40px; margin-bottom: 15px; color: #fff; }
+        h3 { font-size: 18px; margin-top: 30px; margin-bottom: 10px; }
+        p { line-height: 1.6; color: #8b949e; margin-bottom: 15px; }
+
+        code {
+            font-family: 'JetBrains Mono', monospace;
+            background: rgba(110, 118, 129, 0.4);
+            padding: 2px 5px;
+            border-radius: 4px;
+            font-size: 0.9em;
+        }
+
+        pre {
+            background: var(--code-bg);
+            padding: 15px;
+            border-radius: 6px;
+            overflow-x: auto;
+            border: 1px solid var(--border-color);
+            margin: 15px 0;
+        }
+
+        .container {
+            width: 100%;
+        }
+
+        .demo-container {
+            height: 400px; /* Default height for inline demos */
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            overflow: hidden;
+            margin: 20px 0;
+            background: #000;
+            position: relative;
+        }
+
+        .full-screen-demo {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            z-index: 2000;
+            background: #000;
+            display: none;
+        }
+
+        .close-full-screen {
             position: absolute;
             top: 20px;
-            right: 20px;
-            background: rgba(18, 18, 20, 0.85);
-            backdrop-filter: blur(10px);
+            left: 20px;
+            z-index: 2001;
+            padding: 8px 16px;
+            background: #333;
             color: #fff;
-            padding: 20px;
-            border-radius: 12px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            pointer-events: none;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-            z-index: 100;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
         }
 
-        h1 {
-            margin: 0 0 10px 0;
-            font-size: 18px;
-            color: #4facfe;
-        }
-
-        .stat {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 14px;
-            opacity: 0.8;
-            margin-bottom: 5px;
-        }
-
-        .tip {
-            font-size: 12px;
-            color: #aaa;
-            margin-top: 10px;
-            font-style: italic;
+        /* Button */
+        .btn {
+            display: inline-block;
+            background: var(--accent-color);
+            color: #fff;
+            padding: 8px 16px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: 500;
+            margin-top: 20px;
+            cursor: pointer;
+            border: none;
         }
     </style>
 </head>
-
 <body>
-    <div id="grid-container"></div>
-    <div id="overlay">
-        <h1>SciGrid Excel Pro</h1>
-        <div class="stat" id="stat-cells">Cells: 0</div>
-        <div class="stat" id="stat-mem">Memory: 0 MB</div>
-        <div class="stat" id="stat-cols">Columns: 0</div>
-        <div class="stat" id="stat-selection">Selection: [-]</div>
-        <div class="tip">Tip: Double-click to edit cell</div>
-        <div class="tip">Tip: Click row # or Col ID to select</div>
-        <button id="theme-btn"
-            style="margin-top: 15px; padding: 8px 16px; background: #4facfe; border: none; border-radius: 6px; color: white; cursor: pointer; font-family: inherit; pointer-events: auto;">Switch
-            to Light Mode</button>
+
+    <aside class="sidebar">
+        <div class="brand">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                <line x1="3" y1="9" x2="21" y2="9"></line>
+                <line x1="9" y1="21" x2="9" y2="9"></line>
+            </svg>
+            SciGrid
+        </div>
+
+        <div class="nav-section">
+            <div class="nav-title">Guide</div>
+            <a class="nav-link active" data-target="overview">Overview</a>
+            <a class="nav-link" data-target="install">Installation</a>
+            <a class="nav-link" data-target="quickstart">Quick Start</a>
+        </div>
+
+        <div class="nav-section">
+            <div class="nav-title">Features</div>
+            <a class="nav-link" data-target="columns">Column Types</a>
+            <a class="nav-link" data-target="selection">Selection & Editing</a>
+            <a class="nav-link" data-target="theming">Theming</a>
+        </div>
+
+        <div class="nav-section">
+            <div class="nav-title">Performance</div>
+            <a class="nav-link" data-target="bigdata">1 Million Rows</a>
+        </div>
+        
+    </aside>
+
+    <main class="main-content" id="content-area">
+        <!-- Dynamic Content Loaded Here -->
+    </main>
+
+    <!-- Full Screen Container -->
+    <div id="full-demo-container" class="full-screen-demo">
+        <button class="close-full-screen" id="close-demo">← Back to Docs</button>
+        <div id="full-demo-root" style="width: 100%; height: 100%;"></div>
     </div>
 
     <script type="module">
-        import { SciGrid } from './src/sci-grid.ts';
+        import { runFullDemo } from './src/demo/full-demo.ts';
 
-        class ExcelDataProvider {
-            constructor(rows, cols) {
-                this.rows = rows;
-                this.cols = cols;
-                this.data = new Float64Array(rows * cols);
-                this.headerMap = new Map();
-                for (let i = 0; i < this.data.length; i++) {
-                    this.data[i] = Math.floor(Math.random() * 10000) / 100;
-                }
+        const contentMap = {
+            overview: `
+                <h1>Introduction</h1>
+                <p>SciGrid is a high-performance, canvas-based data grid for web applications. It is designed to handle millions of rows with smooth scrolling (60fps) and low memory footprint.</p>
+                <p>Unlike DOM-based grids, SciGrid uses a virtualization engine and HTML5 Canvas to render only what is visible, enabling it to scale comfortably to large datasets.</p>
+                
+                <h2>Key Features</h2>
+                <ul>
+                    <li>🚀 <strong>Performance</strong>: Handle 1M+ rows effortlessly.</li>
+                    <li>🖌️ <strong>Rich Types</strong>: Support for Checkboxes, Progress Bars, Dropdowns, and more.</li>
+                    <li>🎨 <strong>Theming</strong>: Built-in dark and light modes, fully customizable.</li>
+                    <li>⌨️ <strong>Keyboard Support</strong>: Excel-like navigation and editing.</li>
+                </ul>
+                <button class="btn" onclick="document.querySelector('[data-target=bigdata]').click()">View Live Demo</button>
+            `,
+            install: `
+                <h1>Installation</h1>
+                <p>Install SciGrid via npm or pnpm:</p>
+                <pre><code>npm install sci-grid</code></pre>
+                <p>Or using pnpm:</p>
+                <pre><code>pnpm add sci-grid</code></pre>
+            `,
+            quickstart: `
+                <h1>Quick Start</h1>
+                <p>Get up and running with a basic grid in seconds.</p>
+                <pre><code>import { SciGrid } from 'sci-grid';
+
+const container = document.getElementById('grid');
+const provider = {
+    getRowCount: () => 1000,
+    getColumnCount: () => 5,
+    getCellData: (r, c) => \`Cell \${r}:\${c}\`,
+    getHeader: (c) => ({ name: \`Col \${c}\` })
+};
+
+const grid = new SciGrid(container, provider);</code></pre>
+            `,
+            columns: `
+                <h1>Column Types</h1>
+                <p>SciGrid supports multiple column types to visualize data effectively.</p>
+                
+                <h3>Supported Types</h3>
+                <ul>
+                    <li><code>text</code>: Standard text display (default).</li>
+                    <li><code>numeric</code>: Right-aligned numbers.</li>
+                    <li><code>checkbox</code>: Interactive boolean toggle.</li>
+                    <li><code>progress</code>: Visual percentage bar (0-100).</li>
+                    <li><code>select</code>: Dropdown list for fixed options.</li>
+                </ul>
+                
+                <p>To use them, simply specify the <code>type</code> in your <code>getHeader</code> method.</p>
+                <pre><code>getHeader(col) {
+    if (col === 0) return { name: "Done", type: 'checkbox' };
+    if (col === 1) return { name: "Usage", type: 'progress' };
+    if (col === 2) return { name: "Zone", type: 'select', selectOptions: ['A', 'B'] };
+    return { name: "Value" };
+}</code></pre>
+            `,
+            bigdata: `
+                <h1>Performance Demo</h1>
+                <p>Experience the raw power of SciGrid with <strong>1,000,000 rows</strong>.</p>
+                <p>This demo uses a <code>Float64Array</code> backend for numbers and a sparse <code>Map</code> for strings, demonstrating efficient memory usage.</p>
+                <button class="btn" id="launch-full-demo">Launch Full Screen Demo</button>
+            `
+        };
+
+        const contentArea = document.getElementById('content-area');
+        const links = document.querySelectorAll('.nav-link');
+        const fullDemoContainer = document.getElementById('full-demo-container');
+        const fullDemoRoot = document.getElementById('full-demo-root');
+        const closeDemoBtn = document.getElementById('close-demo');
+
+        function loadContent(key) {
+            // Update Active Link
+            links.forEach(l => l.classList.remove('active'));
+            const activeLink = document.querySelector(\`[data-target="\${key}"]\`);
+            if (activeLink) activeLink.classList.add('active');
+
+            // Render Content
+            if (contentMap[key]) {
+                contentArea.innerHTML = contentMap[key];
+            } else {
+                contentArea.innerHTML = '<h1>Not Found</h1>';
             }
 
-            getRowCount() { return this.rows; }
-            getColumnCount() { return this.cols; }
-            getCellData(row, col) {
-                return this.data[row * this.cols + col];
-            }
-            setCellData(row, col, value) {
-                const numericValue = parseFloat(value);
-                if (!isNaN(numericValue)) {
-                    this.data[row * this.cols + col] = numericValue;
-                }
-            }
-            getHeader(col) {
-                if (this.headerMap.has(col)) return this.headerMap.get(col);
-
-                let header;
-                if (col === 0) header = { name: "ID", variant: 'numeric', description: "Auto-inc" };
-                else if (col === 1) header = { name: "TIME", units: "s", description: "Primary time axis", variant: 'numeric', markIcon: '⭐' };
-                else if (col === 2) header = { name: "SIGNAL", units: "V", description: "Sensor A reading", variant: 'numeric', markIcon: '🚩' };
-                else {
-                    let label = "";
-                    let n = col;
-                    while (n >= 0) {
-                        label = String.fromCharCode((n % 26) + 65) + label;
-                        n = Math.floor(n / 26) - 1;
-                    }
-                    header = { name: label };
-                }
-                return header;
-            }
-
-            setHeader(col, header) {
-                this.headerMap.set(col, header);
+            // Special Handlers
+            if (key === 'bigdata') {
+                document.getElementById('launch-full-demo').addEventListener('click', () => {
+                   fullDemoContainer.style.display = 'block';
+                   // Init Demo
+                   runFullDemo(fullDemoRoot);
+                });
             }
         }
 
-        const container = document.getElementById('grid-container');
-        const provider = new ExcelDataProvider(1000000, 200);
-
-        // Update initial stats
-        const totalCells = provider.getRowCount() * provider.getColumnCount();
-        const memMB = (totalCells * 8) / (1024 * 1024);
-        document.getElementById('stat-cells').textContent = `Cells: ${totalCells.toLocaleString()}`;
-        document.getElementById('stat-mem').textContent = `Memory: ${memMB.toFixed(2)} MB (Float64Array)`;
-        document.getElementById('stat-cols').textContent = `Columns: ${provider.getColumnCount()}`;
-
-        const darkConfig = {
-            backgroundColor: '#0a0a0b',
-            gridLineColor: '#1e1e20',
-            textColor: '#94a3b8',
-            font: '13px "JetBrains Mono", monospace',
-            headerHeight: 70,
-            headerSubTextCount: 2,
-            headerBackground: '#121214',
-            headerTextColor: '#4facfe',
-            headerFont: 'bold 15px "Inter", sans-serif',
-            rowNumberBackground: '#121214',
-            rowNumberTextColor: '#666666',
-            selectionColor: 'rgba(79, 172, 254, 0.2)',
-            selectedTextColor: '#ffffff',
-            alternateRowColor: '#0c0c0e',
-        };
-
-        const lightConfig = {
-            backgroundColor: '#ffffff',
-            gridLineColor: '#e2e8f0',
-            textColor: '#334155',
-            font: '13px "JetBrains Mono", monospace',
-            headerHeight: 70,
-            headerSubTextCount: 2,
-            headerBackground: '#f8fafc',
-            headerTextColor: '#0f172a',
-            headerFont: 'bold 15px "Inter", sans-serif',
-            rowNumberBackground: '#f1f5f9',
-            rowNumberTextColor: '#64748b',
-            selectionColor: 'rgba(59, 130, 246, 0.2)',
-            selectedTextColor: '#000000',
-            alternateRowColor: '#f8fafc',
-        };
-
-        const grid = new SciGrid(container, provider, {
-            rowHeight: 30,
-            columnWidth: 120,
-            showRowNumbers: true,
-            rowNumbersWidth: 70,
-            cellPadding: 10,
-            ...darkConfig,
-            onSelectionChange: (info) => {
-                const statSelection = document.getElementById('stat-selection');
-                let selText = '[-]';
-                if (info.mode === 'all') {
-                    selText = '[∞, ∞]';
-                } else if (info.anchorRow !== null || info.anchorCol !== null) {
-                    const r = info.mode === 'column' ? '∞' : (info.anchorRow !== null ? info.anchorRow + 1 : '∞');
-                    const c = info.mode === 'row' ? '∞' : (info.anchorCol !== null ? info.anchorCol + 1 : '∞');
-                    selText = `[${r}, ${c}]`;
-                }
-                statSelection.textContent = `Selection: ${selText}`;
-            },
-            onHeaderContextMenu: (col, e) => {
-                // Remove existing menu
-                const oldMenu = document.getElementById('grid-ctx-menu');
-                if (oldMenu) oldMenu.remove();
-
-                const menu = document.createElement('div');
-                menu.id = 'grid-ctx-menu';
-                menu.style.position = 'fixed';
-                menu.style.left = `${e.clientX}px`;
-                menu.style.top = `${e.clientY}px`;
-                menu.style.backgroundColor = isDark ? '#1e1e20' : '#ffffff';
-                menu.style.color = isDark ? '#ffffff' : '#000000';
-                menu.style.border = '1px solid #4facfe';
-                menu.style.borderRadius = '4px';
-                menu.style.padding = '8px 0';
-                menu.style.boxShadow = '0 4px 12px rgba(0,0,0,0.3)';
-                menu.style.zIndex = '1000';
-                menu.style.minWidth = '150px';
-
-                const header = provider.getHeader(col);
-                const title = document.createElement('div');
-                title.textContent = `Column: ${header.name}`;
-                title.style.padding = '4px 16px';
-                title.style.fontWeight = 'bold';
-                title.style.borderBottom = '1px solid #4facfe44';
-                menu.appendChild(title);
-
-                const actions = [
-                    { label: 'Sort Ascending', icon: '↑' },
-                    { label: 'Sort Descending', icon: '↓' },
-                    { label: 'Hide Column', icon: '✕' },
-                    { label: 'Freeze Column', icon: '❄' }
-                ];
-
-                actions.forEach(action => {
-                    const item = document.createElement('div');
-                    item.innerHTML = `<span style="width: 20px; display: inline-block">${action.icon}</span> ${action.label}`;
-                    item.style.padding = '8px 16px';
-                    item.style.cursor = 'pointer';
-                    item.onmouseover = () => item.style.backgroundColor = isDark ? '#2a2a2d' : '#f1f5f9';
-                    item.onmouseout = () => item.style.backgroundColor = 'transparent';
-                    item.onclick = () => {
-                        console.log(`Action "${action.label}" on column ${col}`);
-                        menu.remove();
-                    };
-                    menu.appendChild(item);
-                });
-
-                document.body.appendChild(menu);
-
-                const closeMenu = (ev) => {
-                    if (!menu.contains(ev.target)) {
-                        menu.remove();
-                        document.removeEventListener('mousedown', closeMenu);
-                    }
-                };
-                setTimeout(() => document.addEventListener('mousedown', closeMenu), 0);
-            }
+        // Event Listeners
+        links.forEach(link => {
+            link.addEventListener('click', () => {
+                const target = link.getAttribute('data-target');
+                loadContent(target);
+            });
         });
 
-        const themeBtn = document.getElementById('theme-btn');
-        let isDark = true;
-
-        themeBtn.addEventListener('click', () => {
-            isDark = !isDark;
-            if (isDark) {
-                grid.updateConfig(darkConfig);
-                document.body.style.background = '#0a0a0b';
-                themeBtn.textContent = 'Switch to Light Mode';
-            } else {
-                grid.updateConfig(lightConfig);
-                document.body.style.background = '#ffffff';
-                themeBtn.textContent = 'Switch to Dark Mode';
-            }
+        closeDemoBtn.addEventListener('click', () => {
+            fullDemoContainer.style.display = 'none';
+            fullDemoRoot.innerHTML = '';
         });
+
+        // Initial Load
+        loadContent('overview');
+
     </script>
 </body>
-
 </html>
