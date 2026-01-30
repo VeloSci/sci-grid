@@ -119,6 +119,7 @@ export class GridRenderer {
 
             ctx.fillStyle = config.rowNumberTextColor;
             ctx.strokeStyle = config.gridLineColor;
+            ctx.textAlign = 'left';
             for (let r = startRow; r <= endRow; r++) {
                 const y = Math.floor(r * config.rowHeight - scrollY + headerHeight);
 
@@ -129,7 +130,7 @@ export class GridRenderer {
 
                 ctx.strokeRect(0, y, rowNumWidth, config.rowHeight);
                 ctx.fillStyle = config.rowNumberTextColor;
-                ctx.fillText((r + 1).toString(), rowNumWidth / 2, y + config.rowHeight / 2);
+                ctx.fillText((r + 1).toString(), config.cellPadding, y + config.rowHeight / 2);
             }
         }
 
@@ -151,6 +152,12 @@ export class GridRenderer {
     private renderHeader(state: ViewportState, config: GridConfig, provider: IDataGridProvider, rowNumOffset: number): void {
         const { width, headerHeight, scrollX, columnOrder, hoveredCol, reorderingCol } = state;
         const ctx = this.ctx;
+
+        ctx.save();
+        // Clip headers to stay within their area
+        ctx.beginPath();
+        ctx.rect(rowNumOffset, 0, width - rowNumOffset, headerHeight);
+        ctx.clip();
 
         ctx.fillStyle = config.headerBackground;
         ctx.fillRect(rowNumOffset, 0, width - rowNumOffset, headerHeight);
@@ -181,73 +188,100 @@ export class GridRenderer {
             }
             currentX += cWidth;
         }
+        ctx.restore();
     }
 
     private drawHeaderContent(header: ColumnHeaderInfo, x: number, y: number, width: number, height: number, config: GridConfig, isHovered: boolean): void {
         const ctx = this.ctx;
-        const lineCount = 1 + config.headerSubTextCount;
-        const lineHeight = height / lineCount;
-        const filterSize = 20;
+        
+        // Dynamic Height Distribution
+        const subCount = config.headerSubTextCount;
+        let titleH = height;
+        let subH = 0;
+        
+        if (subCount === 1) {
+            titleH = height * 0.75;
+            subH = height * 0.25;
+        } else if (subCount === 2) {
+            titleH = height * 0.50;
+            subH = height * 0.25;
+        }
 
         ctx.save();
         ctx.beginPath();
         ctx.rect(x, y, width, height);
         ctx.clip();
 
-        // 1. Draw Handle (only on hover)
-        if (isHovered) {
-            ctx.fillStyle = config.headerTextColor;
-            ctx.globalAlpha = 0.3;
-            for (let i = 0; i < 2; i++) {
-                for (let j = 0; j < 3; j++) {
-                    ctx.beginPath();
-                    ctx.arc(x + 6 + i * 4, y + 6 + j * 4, 1, 0, Math.PI * 2);
-                    ctx.fill();
-                }
+        // 1. Draw Dividers
+        if (subCount > 0) {
+            ctx.strokeStyle = config.headerDividerColor || config.gridLineColor;
+            ctx.lineWidth = 1;
+            ctx.globalAlpha = config.headerDividerAlpha ?? 0.2;
+            
+            // First divider (after title)
+            ctx.beginPath();
+            ctx.moveTo(x, y + titleH);
+            ctx.lineTo(x + width, y + titleH);
+            ctx.stroke();
+
+            // Second divider (if 3 lines total)
+            if (subCount === 2) {
+                ctx.beginPath();
+                ctx.moveTo(x, y + titleH + subH);
+                ctx.lineTo(x + width, y + titleH + subH);
+                ctx.stroke();
             }
             ctx.globalAlpha = 1.0;
         }
 
-        // 2. Draw Filter Button (only on hover, if allowed)
-        if (isHovered && config.allowFiltering && header.isFilterable !== false) {
-            const fx = x + width - filterSize - 5;
-            const fy = y + 5;
+        // 2. Draw Mark Icon
+        if (header.markIcon) {
+            ctx.fillStyle = config.headerTitleStyle?.color || config.headerTextColor;
+            ctx.font = "bold 14px sans-serif";
+            ctx.textAlign = 'right';
+            ctx.textBaseline = 'top';
+            ctx.fillText(header.markIcon, x + width - 5, y + 4);
+        }
+        
+        // 3. Draw Sort Icon
+        if (header.sortOrder) {
             ctx.fillStyle = config.headerTextColor;
-            ctx.globalAlpha = 0.6;
-            ctx.beginPath();
-            ctx.moveTo(fx + 4, fy + 4);
-            ctx.lineTo(fx + 16, fy + 4);
-            ctx.lineTo(fx + 11, fy + 10);
-            ctx.lineTo(fx + 11, fy + 16);
-            ctx.lineTo(fx + 9, fy + 16);
-            ctx.lineTo(fx + 9, fy + 10);
-            ctx.closePath();
-            ctx.fill();
-            ctx.globalAlpha = 1.0;
+            ctx.font = "10px sans-serif";
+            ctx.textAlign = 'right';
+            ctx.textBaseline = 'middle';
+            const arrow = header.sortOrder === 'asc' ? '▲' : '▼';
+            ctx.fillText(arrow, x + width - (header.markIcon ? 20 : 8), y + (subCount === 0 ? height/2 : titleH/2));
         }
 
         // 3. Draw Text Layers
-        ctx.textAlign = 'center';
+        const padding = config.cellPadding;
+        ctx.textAlign = 'left';
         ctx.textBaseline = 'middle';
-        ctx.fillStyle = config.headerTextColor;
 
-        // Name (Top Line)
-        ctx.font = config.headerFont;
-        ctx.fillText(header.name, x + width / 2, y + lineHeight / 2);
+        // --- Title ---
+        const tStyle = config.headerTitleStyle;
+        ctx.font = tStyle?.font || config.headerFont;
+        ctx.fillStyle = tStyle?.color || config.headerTextColor;
+        ctx.globalAlpha = tStyle?.alpha ?? 1.0;
+        ctx.fillText(header.name || "", x + padding, y + titleH / 2);
 
-        // Sub-texts
-        if (config.headerSubTextCount >= 1) {
-            ctx.font = config.font;
-            ctx.globalAlpha = 0.6;
+        // --- Sub-texts ---
+        if (subCount >= 1) {
+            const uStyle = config.headerUnitsStyle;
+            ctx.font = uStyle?.font || `italic ${Math.max(6, Math.floor(height/6))}px Inter, sans-serif`;
+            ctx.fillStyle = uStyle?.color || config.headerTextColor;
+            ctx.globalAlpha = uStyle?.alpha ?? 0.6;
             const text = header.units || config.headerPlaceholder;
-            ctx.fillText(text, x + width / 2, y + lineHeight * 1.5);
+            ctx.fillText(text, x + padding, y + titleH + subH / 2);
         }
 
-        if (config.headerSubTextCount >= 2) {
-            ctx.font = config.font;
-            ctx.globalAlpha = 0.6;
+        if (subCount === 2) {
+            const dStyle = config.headerDescriptionStyle;
+            ctx.font = dStyle?.font || `italic ${Math.max(6, Math.floor(height/8))}px Inter, sans-serif`;
+            ctx.fillStyle = dStyle?.color || config.headerTextColor;
+            ctx.globalAlpha = dStyle?.alpha ?? 0.6;
             const text = header.description || config.headerPlaceholder;
-            ctx.fillText(text, x + width / 2, y + lineHeight * 2.5);
+            ctx.fillText(text, x + padding, y + titleH + subH + subH / 2);
         }
 
         ctx.restore();
