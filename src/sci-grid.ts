@@ -1,6 +1,6 @@
 import type { GridConfig, IDataGridProvider, ViewportState, SelectionMode } from "./types/grid.ts";
-import { GridRenderer } from "./core/renderer";
-import { Scroller } from "./core/scroller";
+import { GridRenderer } from "./core/renderer.js";
+import { Scroller } from "./core/scroller.js";
 
 export class SciGrid {
     private container: HTMLElement;
@@ -11,6 +11,8 @@ export class SciGrid {
     private provider: IDataGridProvider;
     private config: GridConfig;
     private editor: HTMLInputElement | null = null;
+    private resizeObserver: ResizeObserver | null = null;
+    private globalMouseDownHandler: ((e: MouseEvent) => void) | null = null;
 
     private state: ViewportState = {
         scrollX: 0,
@@ -35,6 +37,7 @@ export class SciGrid {
     private isDirty: boolean = false;
 
     private getColumnWidth(col: number): number {
+        if (col === -1) return this.config.rowNumbersWidth;
         return this.state.columnWidths[col] ?? this.config.columnWidth;
     }
 
@@ -132,6 +135,8 @@ export class SciGrid {
         this.container.style.position = "relative";
         this.container.tabIndex = 0; // Make focusable
         this.container.style.outline = "none";
+        this.container.style.userSelect = "none";
+        this.container.style.webkitUserSelect = "none";
 
         this.scroller = new Scroller(
             this.container,
@@ -155,21 +160,31 @@ export class SciGrid {
     }
 
     private init(): void {
-        const resizeObserver = new ResizeObserver((entries) => {
+        this.resizeObserver = new ResizeObserver((entries) => {
             for (const entry of entries) {
                 const { width, height } = entry.contentRect;
                 this.resize(Math.floor(width), Math.floor(height));
             }
         });
 
-        resizeObserver.observe(this.container);
+        this.resizeObserver.observe(this.container);
 
         this.container.addEventListener("keydown", (e) => this.handleKeyDown(e));
         this.container.addEventListener("mousemove", (e) => this.handleMouseMove(e));
+        this.container.addEventListener("contextmenu", (e) => this.handleContextMenu(e));
+
+        // Close editor on click anywhere else
+        this.globalMouseDownHandler = (e: MouseEvent) => {
+            if (this.editor && !this.editor.contains(e.target as Node) && !this.container.contains(e.target as Node)) {
+                this.editor.blur();
+            }
+        };
+        window.addEventListener("mousedown", this.globalMouseDownHandler);
 
         this.updateVirtualSize();
         this.requestAnimationFrame();
     }
+
 
     private updateVirtualSize(): void {
         const rowNumWidth = this.config.showRowNumbers ? this.config.rowNumbersWidth : 0;
@@ -189,11 +204,22 @@ export class SciGrid {
         this.invalidate();
     }
 
-    private getHeaderHit(x: number, y: number): { type: 'edge' | 'handle' | 'text' | 'filter'; colIndex: number; subIndex?: number } {
-        let currentX = 0;
+    private getHeaderHit(x: number, y: number): { type: 'edge' | 'handle' | 'text'; colIndex: number; subIndex?: number } {
         const edgeThreshold = 5;
-        const handleSize = 20;
-        const filterSize = 20;
+        let currentX = 0;
+
+        const subCount = this.config.headerSubTextCount;
+        const totalH = this.state.headerHeight;
+        let titleH = totalH;
+        let subH = 0;
+
+        if (subCount === 1) {
+            titleH = totalH * 0.75;
+            subH = totalH * 0.25;
+        } else if (subCount === 2) {
+            titleH = totalH * 0.50;
+            subH = totalH * 0.25;
+        }
 
         for (let i = 0; i < this.state.columnOrder.length; i++) {
             const col = this.state.columnOrder[i];
@@ -201,40 +227,32 @@ export class SciGrid {
             const width = this.getColumnWidth(col);
 
             if (x >= currentX && x <= currentX + width) {
-                // Check right edge
                 if (x >= currentX + width - edgeThreshold) {
                     return { type: 'edge', colIndex: i };
                 }
-                // Check left edge (except first column)
                 if (i > 0 && x <= currentX + edgeThreshold) {
                     return { type: 'edge', colIndex: i - 1 };
                 }
 
-                // Check reorder handle (top left)
-                if (x <= currentX + handleSize && y <= handleSize) {
-                    return { type: 'handle', colIndex: i };
+                let subIndex = 0;
+                if (y >= titleH) {
+                    if (subCount === 1 || y < titleH + subH) {
+                        subIndex = 1;
+                    } else {
+                        subIndex = 2;
+                    }
                 }
 
-                // Check filter button (top right)
-                if (this.config.allowFiltering && x >= currentX + width - filterSize - 5 && y <= filterSize) {
-                    return { type: 'filter', colIndex: i };
-                }
-
-                // Check text areas (multi-line)
-                const lineCount = 1 + this.config.headerSubTextCount;
-                const lineHeight = this.state.headerHeight / lineCount;
-                const subIndex = Math.max(0, Math.min(lineCount - 1, Math.floor(y / lineHeight)));
-
-                return { type: 'text', colIndex: i, subIndex };
+                return { type: 'handle', colIndex: i, subIndex };
             }
             currentX += width;
         }
 
-        return { type: 'text', colIndex: -1 };
+        return { type: 'handle', colIndex: -1 };
     }
 
     private handleHit(e: MouseEvent, isDoubleClick: boolean = false): void {
-        this.closeEditor();
+        if (this.editor) this.editor.blur();
 
         const rect = this.canvas.getBoundingClientRect();
         const x = e.clientX - rect.left;
@@ -246,9 +264,17 @@ export class SciGrid {
         const isCtrl = e.ctrlKey || e.metaKey;
         const isShift = e.shiftKey;
 
+        const edgeThreshold = 5;
+        // Click on Row Numbers divider
+        if (this.config.showRowNumbers && Math.abs(x - rowNumWidth) < edgeThreshold) {
+            e.preventDefault();
+            this.startResizing(-1, e);
+            return;
+        }
+
         // Click on top-left corner
         if (x < rowNumWidth && y < this.state.headerHeight) {
-            this.state.selectionMode = 'all';
+            this.updateSelection('all', null, null, false, false);
             changed = true;
         }
         // Click on Header
@@ -264,17 +290,15 @@ export class SciGrid {
                     e.preventDefault();
                     this.startResizing(actualCol, e);
                 } else if (hit.type === 'handle') {
-                    e.preventDefault();
-                    this.startReordering(hit.colIndex, e);
-                } else if (hit.type === 'filter' && (header.isFilterable !== false && this.config.allowFiltering)) {
-                    e.preventDefault();
-                    // TODO: Implement filter menu
-                    console.log('Filter clicked for col', actualCol);
-                } else {
-                    this.updateSelection('column', null, actualCol, isCtrl, isShift);
-                    changed = true;
                     if (isDoubleClick) {
+                        e.preventDefault();
                         this.openHeaderEditor(actualCol, hit.subIndex || 0);
+                    } else {
+                        // Only select and allow reorder on single click
+                        this.updateSelection('column', null, actualCol, isCtrl, isShift);
+                        changed = true;
+                        e.preventDefault();
+                        this.startReordering(hit.colIndex, e);
                     }
                 }
             }
@@ -295,17 +319,39 @@ export class SciGrid {
             const actualCol = this.state.columnOrder[colIndex] ?? colIndex;
 
             if (row >= 0 && row < this.provider.getRowCount() && colIndex !== -1) {
-                this.updateSelection('cell', row, actualCol, isCtrl, isShift);
-                changed = true;
-
                 if (isDoubleClick) {
+                    e.preventDefault();
                     this.openEditor(row, actualCol);
+                } else {
+                    this.updateSelection('cell', row, actualCol, isCtrl, isShift);
+                    changed = true;
                 }
             }
         }
 
         if (changed) {
             this.render();
+        }
+    }
+
+    private handleContextMenu(e: MouseEvent): void {
+        const rect = this.canvas.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+
+        const rowNumWidth = this.config.showRowNumbers ? this.config.rowNumbersWidth : 0;
+
+        if (y < this.state.headerHeight && x >= rowNumWidth) {
+            const relativeX = x - rowNumWidth + this.state.scrollX;
+            const hit = this.getHeaderHit(relativeX, y);
+
+            if (hit.colIndex !== -1) {
+                const actualCol = this.state.columnOrder[hit.colIndex] ?? hit.colIndex;
+                if (this.config.onHeaderContextMenu) {
+                    e.preventDefault();
+                    this.config.onHeaderContextMenu(actualCol, e);
+                }
+            }
         }
     }
 
@@ -373,6 +419,16 @@ export class SciGrid {
                 }
             }
         }
+
+        if (this.config.onSelectionChange) {
+            this.config.onSelectionChange({
+                mode: this.state.selectionMode,
+                selectedRows: Array.from(this.state.selectedRows),
+                selectedCols: Array.from(this.state.selectedCols),
+                anchorRow: this.state.anchorRow,
+                anchorCol: this.state.anchorCol
+            });
+        }
     }
 
     private handleKeyDown(e: KeyboardEvent): void {
@@ -420,6 +476,14 @@ export class SciGrid {
         }
 
         const rowNumWidth = this.config.showRowNumbers ? this.config.rowNumbersWidth : 0;
+        const edgeThreshold = 5;
+
+        // Row Numbers resize cursor
+        if (this.config.showRowNumbers && y < this.state.headerHeight && Math.abs(x - rowNumWidth) < edgeThreshold) {
+            this.container.style.cursor = 'col-resize';
+            return;
+        }
+
         const relativeX = x - rowNumWidth + this.state.scrollX;
 
         // Reset hoveredCol if not in header
@@ -446,8 +510,6 @@ export class SciGrid {
                 this.container.style.cursor = 'col-resize';
             } else if (hit.type === 'handle') {
                 this.container.style.cursor = 'grab';
-            } else if (hit.type === 'filter' && (header.isFilterable !== false && this.config.allowFiltering)) {
-                this.container.style.cursor = 'pointer';
             } else {
                 this.container.style.cursor = 'default';
             }
@@ -466,10 +528,23 @@ export class SciGrid {
     }
 
     private startReordering(colIndex: number, e: MouseEvent): void {
-        this.state.reorderingCol = colIndex;
-        this.container.style.cursor = 'grabbing';
+        const startX = e.clientX;
+        const dragThreshold = 3;
+        let isStarted = false;
         
         const onMouseMove = (moveEvent: MouseEvent) => {
+            const deltaX = Math.abs(moveEvent.clientX - startX);
+            
+            if (!isStarted) {
+                if (deltaX > dragThreshold) {
+                    isStarted = true;
+                    this.state.reorderingCol = colIndex;
+                    this.container.style.cursor = 'grabbing';
+                } else {
+                    return;
+                }
+            }
+
             const rect = this.canvas.getBoundingClientRect();
             const x = moveEvent.clientX - rect.left;
             const relativeX = x - (this.config.showRowNumbers ? this.config.rowNumbersWidth : 0) + this.state.scrollX;
@@ -483,7 +558,19 @@ export class SciGrid {
         };
 
         const onMouseUp = () => {
-            if (this.state.reorderingTarget !== null && this.state.reorderingCol !== null) {
+            if (!isStarted) {
+                // It was a simple click, not a drag
+                const actualCol = this.state.columnOrder[colIndex] ?? colIndex;
+                const header = this.provider.getHeader(actualCol);
+                if (header.isSortable !== false && this.config.onSort) {
+                    const current = header.sortOrder || null;
+                    let next: 'asc' | 'desc' | null = 'asc';
+                    if (current === 'asc') next = 'desc';
+                    else if (current === 'desc') next = null;
+                    
+                    this.config.onSort(actualCol, next);
+                }
+            } else if (this.state.reorderingTarget !== null && this.state.reorderingCol !== null) {
                 const order = [...this.state.columnOrder];
                 if (order.length === 0) {
                     for (let i = 0; i < this.provider.getColumnCount(); i++) order.push(i);
@@ -506,6 +593,7 @@ export class SciGrid {
             this.state.reorderingX = null;
             window.removeEventListener('mousemove', onMouseMove);
             window.removeEventListener('mouseup', onMouseUp);
+            this.container.style.cursor = 'default';
             this.invalidate();
         };
 
@@ -520,7 +608,14 @@ export class SciGrid {
 
         const onMouseMove = (moveEvent: MouseEvent) => {
             const delta = moveEvent.clientX - startX;
-            this.state.columnWidths[col] = Math.max(30, startWidth + delta);
+            const newWidth = Math.max(30, startWidth + delta);
+            
+            if (col === -1) {
+                this.config.rowNumbersWidth = newWidth;
+            } else {
+                this.state.columnWidths[col] = newWidth;
+            }
+            
             this.updateVirtualSize();
             this.invalidate();
         };
@@ -540,7 +635,7 @@ export class SciGrid {
     private openHeaderEditor(col: number, subIndex: number): void {
         const header = this.provider.getHeader(col);
         let value = "";
-        if (subIndex === 0) value = header.name;
+        if (subIndex === 0) value = header.name || "";
         else if (subIndex === 1) value = header.units || "";
         else if (subIndex === 2) value = header.description || "";
 
@@ -549,27 +644,58 @@ export class SciGrid {
         const rowNumWidth = this.config.showRowNumbers ? this.config.rowNumbersWidth : 0;
         const x = this.getColumnOffset(actualColIndex) - this.state.scrollX + rowNumWidth;
         
-        const lineCount = 1 + this.config.headerSubTextCount;
-        const lineHeight = this.state.headerHeight / lineCount;
-        const y = subIndex * lineHeight;
+        const subCount = this.config.headerSubTextCount;
+        const totalH = this.state.headerHeight;
+        let titleH = totalH;
+        let subH = 0;
+        
+        if (subCount === 1) {
+            titleH = totalH * 0.75;
+            subH = totalH * 0.25;
+        } else if (subCount === 2) {
+            titleH = totalH * 0.50;
+            subH = totalH * 0.25;
+        }
+
+        let editY = 0;
+        let editH = titleH;
+        let lineStyle = this.config.headerTitleStyle;
+
+        if (subIndex === 1) {
+            editY = titleH;
+            editH = subH;
+            lineStyle = this.config.headerUnitsStyle;
+        } else if (subIndex === 2) {
+            editY = titleH + subH;
+            editH = subH;
+            lineStyle = this.config.headerDescriptionStyle;
+        }
 
         const input = document.createElement("input");
+        this.editor = input;
         input.type = "text";
         input.value = value;
         input.placeholder = subIndex > 0 ? this.config.headerPlaceholder : "";
         input.style.position = "absolute";
         input.style.left = `${x}px`;
-        input.style.top = `${y}px`;
+        input.style.top = `${editY}px`;
         input.style.width = `${this.getColumnWidth(col)}px`;
-        input.style.height = `${lineHeight}px`;
+        input.style.height = `${editH}px`;
         input.style.boxSizing = "border-box";
         input.style.border = "2px solid #4facfe";
         input.style.outline = "none";
-        input.style.font = this.config.headerFont;
+
+        input.style.backgroundColor = this.config.headerBackground;
+        input.style.color = lineStyle?.color || this.config.headerTextColor;
+        input.style.font = lineStyle?.font || (subIndex === 0 ? this.config.headerFont : "italic 10px Inter, sans-serif");
+        input.style.opacity = (lineStyle?.alpha ?? (subIndex === 0 ? 1.0 : 0.6)).toString();
+        input.style.padding = `0 ${this.config.cellPadding}px`;
+        input.style.textAlign = "left";
         input.style.zIndex = "100";
         input.style.pointerEvents = "auto";
 
         const save = () => {
+            if (!this.editor) return;
             const newHeader = { ...header };
             if (subIndex === 0) newHeader.name = input.value;
             else if (subIndex === 1) newHeader.units = input.value;
@@ -578,20 +704,22 @@ export class SciGrid {
             if (this.provider.setHeader) {
                 this.provider.setHeader(col, newHeader);
             }
-            input.remove();
+            this.closeEditor();
             this.invalidate();
         };
 
         input.onblur = save;
         input.onkeydown = (e) => {
             if (e.key === 'Enter') save();
-            if (e.key === 'Escape') input.remove();
+            if (e.key === 'Escape') this.closeEditor();
         };
 
         this.uiLayer.appendChild(input);
         setTimeout(() => {
-            input.focus();
-            input.select();
+            if (this.editor === input) {
+                input.focus();
+                input.select();
+            }
         }, 0);
     }
 
@@ -648,8 +776,9 @@ export class SciGrid {
 
     private saveEditor(row: number, col: number): void {
         if (this.editor && this.provider.setCellData) {
-            this.provider.setCellData(row, col, this.editor.value);
+            const val = this.editor.value;
             this.closeEditor();
+            this.provider.setCellData(row, col, val);
             this.invalidate();
         }
     }
@@ -681,6 +810,10 @@ export class SciGrid {
         this.isDirty = false;
     }
 
+    public renderNow(): void {
+        this.render();
+    }
+
     private requestAnimationFrame(): void {
         const loop = () => {
             if (this.isDirty) {
@@ -705,5 +838,15 @@ export class SciGrid {
         this.closeEditor(); // Close editor to avoid styling conflicts
         this.updateVirtualSize(); // In case row height/col width changed
         this.invalidate();
+    }
+
+    public destroy(): void {
+        if (this.resizeObserver) {
+            this.resizeObserver.disconnect();
+        }
+        if (this.globalMouseDownHandler) {
+            window.removeEventListener("mousedown", this.globalMouseDownHandler);
+        }
+        this.container.innerHTML = "";
     }
 }
