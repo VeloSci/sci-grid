@@ -1,0 +1,50 @@
+---
+/**
+ * SciGrid Astro Component
+ * Professional canvas-based grid for Astro.
+ * Note: Initialized via window events or automatic lookup.
+ */
+interface Props {
+  id?: string;
+  config?: any;
+}
+
+const { id = "sci-grid-astro", config = {} } = Astro.props;
+---
+
+<div 
+  id={id} 
+  class="sci-grid-astro-container"
+  data-config={JSON.stringify(config)}
+  style="width: 100%; height: 100%; min-height: 400px; position: relative;"
+></div>
+
+<script>
+  import { SciGrid } from '../sci-grid.js';
+  
+  // Auto-initialize any grid that has a provider ready
+  const initGrids = () => {
+    document.querySelectorAll('.sci-grid-astro-container').forEach(el => {
+      const container = el as HTMLElement;
+      if (container.dataset.initialized) return;
+
+      const id = container.id;
+      const config = JSON.parse(container.dataset.config || '{}');
+
+      const setup = (e: any) => {
+        const { provider } = e.detail;
+        if (provider) {
+          new SciGrid(container, provider, config);
+          container.dataset.initialized = "true";
+          window.removeEventListener('scigrid-init-' + id, setup);
+        }
+      };
+
+      window.addEventListener('scigrid-init-' + id, setup);
+    });
+  };
+
+  initGrids();
+  // Support Astro View Transitions
+  document.addEventListener('astro:page-load', initGrids);
+</script>
