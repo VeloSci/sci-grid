@@ -70,7 +70,7 @@ export function initMiniDemos() {
         const provider = new SimpleDemoProvider(data, headers);
         new SciGrid(themeContainer, provider, {
             rowHeight: 40,
-            selectionColor: '#00ff41',
+            selectionColor: 'rgba(0, 255, 65, 0.2)',
             selectedTextColor: '#000',
             backgroundColor: '#000000',
             gridLineColor: '#003b00',
