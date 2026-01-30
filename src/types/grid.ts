@@ -1,13 +1,25 @@
 export type GridDataValue = string | number | null | undefined;
 
+export interface ColumnHeaderInfo {
+    name: string;
+    units?: string;
+    description?: string;
+    variant?: 'numeric' | 'text' | 'date';
+    isEditable?: boolean;
+    isResizable?: boolean;
+    isSortable?: boolean;
+    isFilterable?: boolean;
+}
+
 export interface IDataGridProvider {
     getRowCount(): number;
     getColumnCount(): number;
     getCellData(row: number, col: number): GridDataValue;
-    getColumnHeader(col: number): string;
+    getHeader(col: number): ColumnHeaderInfo;
     // Optional: direct access to typed arrays for performance
     getRawData?(): Float32Array | Float64Array | null;
     setCellData?(row: number, col: number, value: any): void;
+    setHeader?(col: number, header: ColumnHeaderInfo): void;
 }
 
 export interface GridStyle {
@@ -35,6 +47,11 @@ export interface GridConfig extends GridStyle {
     headerHeight: number;
     showRowNumbers: boolean;
     rowNumbersWidth: number;
+    // Header Configuration
+    headerSubTextCount: 0 | 1 | 2; // Number of optional sub-fields (units, description)
+    headerPlaceholder: string;    // Global placeholder for empty sub-fields
+    allowResizing: boolean;      // Global toggle
+    allowFiltering: boolean;     // Global toggle
 }
 
 export type SelectionMode = 'cell' | 'row' | 'column' | 'all';
@@ -44,7 +61,17 @@ export interface ViewportState {
     scrollY: number;
     width: number;
     height: number;
-    selectedRow: number | null;
-    selectedCol: number | null;
+    headerHeight: number;
+    columnWidths: Record<number, number>;
+    columnOrder: number[];
+    selectedRows: Set<number>;
+    selectedCols: Set<number>;
+    anchorRow: number | null;
+    anchorCol: number | null;
+    resizingCol: number | null;
+    reorderingCol: number | null;
+    reorderingTarget: number | null;
+    reorderingX: number | null;
+    hoveredCol: number | null;
     selectionMode: SelectionMode;
 }
