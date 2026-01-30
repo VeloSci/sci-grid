@@ -86,4 +86,29 @@ describe('SciGrid Core', () => {
 
         expect(onSort).toHaveBeenCalledWith(0, 'asc');
     });
+    it('should toggle checkbox value on click', () => {
+        const setCellData = vi.fn();
+        provider.setCellData = setCellData;
+        provider.getCellData = vi.fn(() => false);
+        provider.getHeader = vi.fn(() => ({ name: 'Check', type: 'checkbox' }));
+        
+        const grid = new SciGrid(container, provider);
+        (grid as any).resize(800, 600);
+        
+        container.getBoundingClientRect = vi.fn(() => ({
+            left: 0, top: 0, width: 800, height: 600, right: 800, bottom: 600, x: 0, y: 0, toJSON: () => {}
+        } as DOMRect));
+        
+        // Default rowNumWidth is 40. Default headers height is 30.
+        // Click at x=60 (inside first column which starts at 40), y=45 (inside first row which starts at 30)
+        const event = new MouseEvent('mousedown', {
+            clientX: 60, 
+            clientY: 45,
+            bubbles: true
+        });
+        
+        container.dispatchEvent(event);
+        
+        expect(setCellData).toHaveBeenCalledWith(0, 0, true);
+    });
 });
