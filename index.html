@@ -82,8 +82,10 @@
     <div id="grid-container"></div>
     <div id="overlay">
         <h1>SciGrid Excel Pro</h1>
-        <div class="stat">Cells: 20,000,000</div>
-        <div class="stat">Memory: Float64Array Ready</div>
+        <div class="stat" id="stat-cells">Cells: 0</div>
+        <div class="stat" id="stat-mem">Memory: 0 MB</div>
+        <div class="stat" id="stat-cols">Columns: 0</div>
+        <div class="stat" id="stat-selection">Selection: [-]</div>
         <div class="tip">Tip: Double-click to edit cell</div>
         <div class="tip">Tip: Click row # or Col ID to select</div>
         <button id="theme-btn"
@@ -99,6 +101,7 @@
                 this.rows = rows;
                 this.cols = cols;
                 this.data = new Float64Array(rows * cols);
+                this.headerMap = new Map();
                 for (let i = 0; i < this.data.length; i++) {
                     this.data[i] = Math.floor(Math.random() * 10000) / 100;
                 }
@@ -116,35 +119,49 @@
                 }
             }
             getHeader(col) {
-                if (col === 0) return { name: "ID", variant: 'numeric', description: "Auto-inc" };
-                if (col === 1) return { name: "TIME", units: "s", description: "Primary time axis", variant: 'numeric' };
-                if (col === 2) return { name: "SIGNAL", units: "V", description: "Sensor A reading", variant: 'numeric' };
-                
-                let label = "";
-                let n = col;
-                while (n >= 0) {
-                    label = String.fromCharCode((n % 26) + 65) + label;
-                    n = Math.floor(n / 26) - 1;
+                if (this.headerMap.has(col)) return this.headerMap.get(col);
+
+                let header;
+                if (col === 0) header = { name: "ID", variant: 'numeric', description: "Auto-inc" };
+                else if (col === 1) header = { name: "TIME", units: "s", description: "Primary time axis", variant: 'numeric', markIcon: '⭐' };
+                else if (col === 2) header = { name: "SIGNAL", units: "V", description: "Sensor A reading", variant: 'numeric', markIcon: '🚩' };
+                else {
+                    let label = "";
+                    let n = col;
+                    while (n >= 0) {
+                        label = String.fromCharCode((n % 26) + 65) + label;
+                        n = Math.floor(n / 26) - 1;
+                    }
+                    header = { name: label };
                 }
-                return { name: label };
+                return header;
             }
 
             setHeader(col, header) {
-                console.log(`Column ${col} header updated to:`, header);
+                this.headerMap.set(col, header);
             }
         }
 
         const container = document.getElementById('grid-container');
-        const provider = new ExcelDataProvider(1000000, 20);
+        const provider = new ExcelDataProvider(1000000, 200);
+
+        // Update initial stats
+        const totalCells = provider.getRowCount() * provider.getColumnCount();
+        const memMB = (totalCells * 8) / (1024 * 1024);
+        document.getElementById('stat-cells').textContent = `Cells: ${totalCells.toLocaleString()}`;
+        document.getElementById('stat-mem').textContent = `Memory: ${memMB.toFixed(2)} MB (Float64Array)`;
+        document.getElementById('stat-cols').textContent = `Columns: ${provider.getColumnCount()}`;
 
         const darkConfig = {
             backgroundColor: '#0a0a0b',
             gridLineColor: '#1e1e20',
             textColor: '#94a3b8',
             font: '13px "JetBrains Mono", monospace',
+            headerHeight: 70,
+            headerSubTextCount: 2,
             headerBackground: '#121214',
             headerTextColor: '#4facfe',
-            headerFont: 'bold 12px "Inter", sans-serif',
+            headerFont: 'bold 15px "Inter", sans-serif',
             rowNumberBackground: '#121214',
             rowNumberTextColor: '#666666',
             selectionColor: 'rgba(79, 172, 254, 0.2)',
@@ -157,9 +174,11 @@
             gridLineColor: '#e2e8f0',
             textColor: '#334155',
             font: '13px "JetBrains Mono", monospace',
+            headerHeight: 70,
+            headerSubTextCount: 2,
             headerBackground: '#f8fafc',
             headerTextColor: '#0f172a',
-            headerFont: 'bold 12px "Inter", sans-serif',
+            headerFont: 'bold 15px "Inter", sans-serif',
             rowNumberBackground: '#f1f5f9',
             rowNumberTextColor: '#64748b',
             selectionColor: 'rgba(59, 130, 246, 0.2)',
@@ -171,9 +190,79 @@
             rowHeight: 30,
             columnWidth: 120,
             showRowNumbers: true,
-            rowNumbersWidth: 60,
-            cellPadding: 12,
-            ...darkConfig
+            rowNumbersWidth: 70,
+            cellPadding: 10,
+            ...darkConfig,
+            onSelectionChange: (info) => {
+                const statSelection = document.getElementById('stat-selection');
+                let selText = '[-]';
+                if (info.mode === 'all') {
+                    selText = '[∞, ∞]';
+                } else if (info.anchorRow !== null || info.anchorCol !== null) {
+                    const r = info.mode === 'column' ? '∞' : (info.anchorRow !== null ? info.anchorRow + 1 : '∞');
+                    const c = info.mode === 'row' ? '∞' : (info.anchorCol !== null ? info.anchorCol + 1 : '∞');
+                    selText = `[${r}, ${c}]`;
+                }
+                statSelection.textContent = `Selection: ${selText}`;
+            },
+            onHeaderContextMenu: (col, e) => {
+                // Remove existing menu
+                const oldMenu = document.getElementById('grid-ctx-menu');
+                if (oldMenu) oldMenu.remove();
+
+                const menu = document.createElement('div');
+                menu.id = 'grid-ctx-menu';
+                menu.style.position = 'fixed';
+                menu.style.left = `${e.clientX}px`;
+                menu.style.top = `${e.clientY}px`;
+                menu.style.backgroundColor = isDark ? '#1e1e20' : '#ffffff';
+                menu.style.color = isDark ? '#ffffff' : '#000000';
+                menu.style.border = '1px solid #4facfe';
+                menu.style.borderRadius = '4px';
+                menu.style.padding = '8px 0';
+                menu.style.boxShadow = '0 4px 12px rgba(0,0,0,0.3)';
+                menu.style.zIndex = '1000';
+                menu.style.minWidth = '150px';
+
+                const header = provider.getHeader(col);
+                const title = document.createElement('div');
+                title.textContent = `Column: ${header.name}`;
+                title.style.padding = '4px 16px';
+                title.style.fontWeight = 'bold';
+                title.style.borderBottom = '1px solid #4facfe44';
+                menu.appendChild(title);
+
+                const actions = [
+                    { label: 'Sort Ascending', icon: '↑' },
+                    { label: 'Sort Descending', icon: '↓' },
+                    { label: 'Hide Column', icon: '✕' },
+                    { label: 'Freeze Column', icon: '❄' }
+                ];
+
+                actions.forEach(action => {
+                    const item = document.createElement('div');
+                    item.innerHTML = `<span style="width: 20px; display: inline-block">${action.icon}</span> ${action.label}`;
+                    item.style.padding = '8px 16px';
+                    item.style.cursor = 'pointer';
+                    item.onmouseover = () => item.style.backgroundColor = isDark ? '#2a2a2d' : '#f1f5f9';
+                    item.onmouseout = () => item.style.backgroundColor = 'transparent';
+                    item.onclick = () => {
+                        console.log(`Action "${action.label}" on column ${col}`);
+                        menu.remove();
+                    };
+                    menu.appendChild(item);
+                });
+
+                document.body.appendChild(menu);
+
+                const closeMenu = (ev) => {
+                    if (!menu.contains(ev.target)) {
+                        menu.remove();
+                        document.removeEventListener('mousedown', closeMenu);
+                    }
+                };
+                setTimeout(() => document.addEventListener('mousedown', closeMenu), 0);
+            }
         });
 
         const themeBtn = document.getElementById('theme-btn');
