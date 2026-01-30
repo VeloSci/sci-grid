@@ -4,18 +4,18 @@ export class Scroller {
     private container: HTMLElement;
     private shadow: HTMLElement;
     private onScroll: (state: Partial<ViewportState>) => void;
-    private onClick: (x: number, y: number) => void;
-    private onDoubleClick: (x: number, y: number) => void;
+    private onMouseDown: (e: MouseEvent) => void;
+    private onDoubleClick: (e: MouseEvent) => void;
 
     constructor(
         container: HTMLElement,
         onScroll: (state: Partial<ViewportState>) => void,
-        onClick: (x: number, y: number) => void,
-        onDoubleClick: (x: number, y: number) => void
+        onMouseDown: (e: MouseEvent) => void,
+        onDoubleClick: (e: MouseEvent) => void
     ) {
         this.container = container;
         this.onScroll = onScroll;
-        this.onClick = onClick;
+        this.onMouseDown = onMouseDown;
         this.onDoubleClick = onDoubleClick;
 
         // Create shadow element for real scrollbars
@@ -58,6 +58,26 @@ export class Scroller {
         this.container.scrollTop = y / (this.scaleY || 1);
     }
 
+    public scrollToCell(x: number, y: number, width: number, height: number): void {
+        const left = this.container.scrollLeft * this.scaleX;
+        const top = this.container.scrollTop * this.scaleY;
+        const viewportWidth = this.container.clientWidth;
+        const viewportHeight = this.container.clientHeight;
+
+        let newX = left;
+        let newY = top;
+
+        if (x < left) newX = x;
+        else if (x + width > left + viewportWidth) newX = x + width - viewportWidth;
+
+        if (y < top) newY = y;
+        else if (y + height > top + viewportHeight) newY = y + height - viewportHeight;
+
+        if (newX !== left || newY !== top) {
+            this.setScroll(newX, newY);
+        }
+    }
+
     private setupEvents(): void {
         let lastX = 0;
         let lastY = 0;
@@ -76,12 +96,12 @@ export class Scroller {
             }
         }, { passive: true });
 
-        this.container.addEventListener("click", (e) => {
-            this.onClick(e.clientX, e.clientY);
+        this.container.addEventListener("mousedown", (e) => {
+            this.onMouseDown(e);
         });
 
         this.container.addEventListener("dblclick", (e) => {
-            this.onDoubleClick(e.clientX, e.clientY);
+            this.onDoubleClick(e);
         });
     }
 }
