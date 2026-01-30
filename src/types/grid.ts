@@ -56,6 +56,7 @@ export interface GridStyle {
     rowNumberTextColor: string;
     scrollbarColor?: string;
     scrollbarThumbColor?: string;
+    dragHandleColor?: string;
 }
 
 export interface SelectionInfo {

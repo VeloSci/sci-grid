@@ -307,11 +307,12 @@ export class GridRenderer {
             const totalContentHeight = provider.getRowCount() * config.rowHeight + headerHeight - scrollY;
             const indicatorHeight = Math.min(height, Math.max(headerHeight, totalContentHeight));
 
+            const drawColor = config.dragHandleColor || "#4facfe";
+
             ctx.save();
-            ctx.strokeStyle = "#4facfe";
+            ctx.strokeStyle = drawColor;
             ctx.lineWidth = 4;
-            ctx.shadowBlur = 10;
-            ctx.shadowColor = "#4facfe";
+            // Removed shadow to avoid visual artifacts
             ctx.beginPath();
             ctx.moveTo(currentX, 0);
             ctx.lineTo(currentX, indicatorHeight);

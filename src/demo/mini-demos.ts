@@ -80,7 +80,8 @@ export function initMiniDemos() {
             font: '14px "Courier New", monospace',
             showRowNumbers: true,
             rowNumberBackground: '#001a00',
-            rowNumberTextColor: '#008F11'
+            rowNumberTextColor: '#008F11',
+            dragHandleColor: '#00ff41'
         });
     }
 
