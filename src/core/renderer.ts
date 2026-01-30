@@ -94,14 +94,8 @@ export class GridRenderer {
                 }
 
                 const data = provider.getCellData(r, c);
-                if (data !== null && data !== undefined) {
-                    ctx.fillStyle = isSelected && selectionMode === 'cell' ? config.selectedTextColor : config.textColor;
-                    ctx.fillText(
-                        data.toString(),
-                        x + config.cellPadding,
-                        y + config.rowHeight / 2
-                    );
-                }
+                const header = provider.getHeader(c);
+                this.drawCellContent(ctx, data, header, x, y, cWidth, config.rowHeight, config, isSelected && selectionMode === 'cell');
 
                 ctx.strokeStyle = config.gridLineColor;
                 ctx.lineWidth = 1;
@@ -360,6 +354,74 @@ export class GridRenderer {
             }
 
             ctx.restore();
+        }
+    }
+
+    private drawCellContent(
+        ctx: CanvasRenderingContext2D,
+        data: any,
+        header: ColumnHeaderInfo,
+        x: number,
+        y: number,
+        width: number,
+        height: number,
+        config: GridConfig,
+        isSelected: boolean
+    ): void {
+        const type = header.type || 'text';
+        const padding = config.cellPadding;
+        const textColor = isSelected ? config.selectedTextColor : config.textColor;
+
+        if (type === 'checkbox') {
+            const boxSize = 14;
+            const bx = x + (width - boxSize) / 2;
+            const by = y + (height - boxSize) / 2;
+            const isChecked = !!data;
+
+            ctx.beginPath();
+            ctx.rect(bx, by, boxSize, boxSize);
+            ctx.strokeStyle = '#999';
+            ctx.stroke();
+
+            if (isChecked) {
+                ctx.fillStyle = '#4facfe';
+                ctx.fillRect(bx + 2, by + 2, boxSize - 4, boxSize - 4);
+            }
+            return;
+        }
+
+        if (type === 'progress') {
+            const val = typeof data === 'number' ? Math.min(100, Math.max(0, data)) : 0;
+            const barHeight = height * 0.6;
+            const barY = y + (height - barHeight) / 2;
+            const barWidth = width - padding * 2;
+            const barX = x + padding;
+
+            // Background
+            ctx.fillStyle = "#e0e0e0";
+            ctx.fillRect(barX, barY, barWidth, barHeight);
+
+            // Fill
+            ctx.fillStyle = "#4facfe";
+            ctx.fillRect(barX, barY, barWidth * (val / 100), barHeight);
+            
+            // Text overlay
+            ctx.fillStyle = "#000";
+            ctx.font = "10px sans-serif";
+            ctx.textAlign = "center";
+            ctx.fillText(`${val}%`, x + width / 2, y + height / 2);
+            return;
+        }
+
+        // Default Text
+        if (data !== null && data !== undefined) {
+            ctx.fillStyle = textColor;
+            ctx.textAlign = 'left';
+            ctx.font = config.font; // Ensure font is set
+            // Simple truncation
+            const text = data.toString();
+            // TODO: Better truncation logic
+            ctx.fillText(text, x + padding, y + height / 2);
         }
     }
 }
