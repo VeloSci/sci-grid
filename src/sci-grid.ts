@@ -319,9 +319,21 @@ export class SciGrid {
             const actualCol = this.state.columnOrder[colIndex] ?? colIndex;
 
             if (row >= 0 && row < this.provider.getRowCount() && colIndex !== -1) {
-                if (isDoubleClick) {
+                const header = this.provider.getHeader(actualCol);
+                
+                if (header.type === 'checkbox') {
+                    if (!isDoubleClick && this.provider.setCellData) {
+                        const val = this.provider.getCellData(row, actualCol);
+                        this.provider.setCellData(row, actualCol, !val);
+                        this.invalidate();
+                    }
+                    this.updateSelection('cell', row, actualCol, isCtrl, isShift);
+                    changed = true;
+                } else if (isDoubleClick) {
                     e.preventDefault();
-                    this.openEditor(row, actualCol);
+                    if (header.type !== 'progress') { // Don't edit progress bars as text
+                        this.openEditor(row, actualCol);
+                    }
                 } else {
                     this.updateSelection('cell', row, actualCol, isCtrl, isShift);
                     changed = true;
