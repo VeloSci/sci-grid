@@ -115,14 +115,22 @@
                     this.data[row * this.cols + col] = numericValue;
                 }
             }
-            getColumnHeader(col) {
+            getHeader(col) {
+                if (col === 0) return { name: "ID", variant: 'numeric', description: "Auto-inc" };
+                if (col === 1) return { name: "TIME", units: "s", description: "Primary time axis", variant: 'numeric' };
+                if (col === 2) return { name: "SIGNAL", units: "V", description: "Sensor A reading", variant: 'numeric' };
+                
                 let label = "";
                 let n = col;
                 while (n >= 0) {
                     label = String.fromCharCode((n % 26) + 65) + label;
                     n = Math.floor(n / 26) - 1;
                 }
-                return label;
+                return { name: label };
+            }
+
+            setHeader(col, header) {
+                console.log(`Column ${col} header updated to:`, header);
             }
         }
 
