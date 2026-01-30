@@ -57,6 +57,8 @@ export function runFullDemo(element: HTMLElement) {
         columnWidth: 120,
         showRowNumbers: true,
         rowNumbersWidth: 60,
+        scrollbarColor: 'transparent',
+        scrollbarThumbColor: '#30363d'
     };
 
     const lightConfig = {
@@ -71,6 +73,8 @@ export function runFullDemo(element: HTMLElement) {
         selectionColor: 'rgba(59, 130, 246, 0.2)',
         selectedTextColor: '#000000',
         alternateRowColor: '#f8fafc',
+        scrollbarColor: 'transparent',
+        scrollbarThumbColor: '#cbd5e1'
     };
 
     const grid = new SciGrid(container, provider, {

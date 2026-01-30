@@ -32,6 +32,78 @@ export class Scroller {
         this.container.appendChild(this.shadow);
 
         this.setupEvents();
+        this.injectScrollStyle();
+    }
+
+    private styleId: string = 'scigrid-scroll-style-' + Math.random().toString(36).substr(2, 9);
+
+    private injectScrollStyle() {
+        // Unique class for this scroller instance to avoid global pollution
+        this.container.classList.add(this.styleId);
+        
+        const style = document.createElement('style');
+        style.id = this.styleId;
+        // Default minimalist style
+        style.innerHTML = `
+            .${this.styleId} {
+                scrollbar-width: thin;
+                scrollbar-color: rgba(155, 155, 155, 0.5) transparent;
+            }
+            .${this.styleId}::-webkit-scrollbar {
+                width: 10px;
+                height: 10px;
+            }
+            .${this.styleId}::-webkit-scrollbar-track {
+                background: transparent;
+            }
+            .${this.styleId}::-webkit-scrollbar-thumb {
+                background-color: rgba(155, 155, 155, 0.5);
+                border-radius: 6px;
+                border: 2px solid transparent;
+                background-clip: content-box;
+            }
+            .${this.styleId}::-webkit-scrollbar-thumb:hover {
+                background-color: rgba(155, 155, 155, 0.8);
+            }
+            .${this.styleId}::-webkit-scrollbar-corner {
+                background: transparent;
+            }
+        `;
+        document.head.appendChild(style);
+    }
+
+    public updateScrollStyle(thumbColor?: string, trackColor?: string) {
+        const style = document.getElementById(this.styleId);
+        if (style && (thumbColor || trackColor)) {
+             const tData = thumbColor || 'rgba(155, 155, 155, 0.5)';
+             const trData = trackColor || 'transparent';
+             
+             style.innerHTML = `
+                .${this.styleId} {
+                    scrollbar-width: thin;
+                    scrollbar-color: ${tData} ${trData};
+                }
+                .${this.styleId}::-webkit-scrollbar {
+                    width: 10px;
+                    height: 10px;
+                }
+                .${this.styleId}::-webkit-scrollbar-track {
+                    background: ${trData};
+                }
+                .${this.styleId}::-webkit-scrollbar-thumb {
+                    background-color: ${tData};
+                    border-radius: 6px;
+                    border: 2px solid ${trData === 'transparent' ? 'transparent' : trData};
+                    background-clip: content-box;
+                }
+                .${this.styleId}::-webkit-scrollbar-thumb:hover {
+                    opacity: 0.8;
+                }
+                .${this.styleId}::-webkit-scrollbar-corner {
+                    background: ${trData};
+                }
+            `;
+        }
     }
 
     private readonly MAX_BROWSER_SIZE = 15_000_000;

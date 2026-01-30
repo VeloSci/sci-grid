@@ -10,7 +10,7 @@ export class SciGrid {
     private uiLayer: HTMLElement;
     private provider: IDataGridProvider;
     private config: GridConfig;
-    private editor: HTMLInputElement | HTMLSelectElement | null = null;
+    private editor: HTMLInputElement | HTMLElement | null = null;
     private resizeObserver: ResizeObserver | null = null;
     private globalMouseDownHandler: ((e: MouseEvent) => void) | null = null;
 
@@ -166,6 +166,9 @@ export class SciGrid {
                 this.resize(Math.floor(width), Math.floor(height));
             }
         });
+        
+        // Init Scroll Styles
+        this.scroller.updateScrollStyle(this.config.scrollbarThumbColor, this.config.scrollbarColor);
 
         this.resizeObserver.observe(this.container);
 
@@ -755,67 +758,149 @@ export class SciGrid {
         const header = this.provider.getHeader(col);
         const isSelect = header.type === 'select';
         
-        let input: HTMLInputElement | HTMLSelectElement;
+        let initialValue = this.provider.getCellData(row, col)?.toString() || "";
 
         if (isSelect) {
-            input = document.createElement("select");
+            // Custom Dropdown Container
+            const container = document.createElement("div");
+            this.editor = container;
+            container.style.position = "absolute";
+            container.style.left = `${x}px`;
+            container.style.top = `${y}px`;
+            container.style.width = `${colWidth}px`;
+            container.style.height = `${this.config.rowHeight}px`; // Base height matches cell
+            container.style.boxSizing = "border-box";
+            container.style.zIndex = "1000";
+            container.style.pointerEvents = "auto";
+            container.setAttribute('data-value', initialValue);
+
+             // Main display box (mimics cell)
+            const display = document.createElement("div");
+            display.style.width = "100%";
+            display.style.height = "100%";
+            display.textContent = initialValue;
+            display.style.backgroundColor = this.config.backgroundColor;
+            display.style.color = this.config.textColor;
+             display.style.border = "2px solid #4facfe";
+            display.style.padding = `0 ${this.config.cellPadding}px`;
+            display.style.display = 'flex';
+            display.style.alignItems = 'center';
+            display.style.cursor = 'pointer';
+            display.style.position = 'relative';
+            
+            // Arrow icon
+            const arrow = document.createElement('span');
+            arrow.textContent = '▼';
+            arrow.style.fontSize = '10px';
+            arrow.style.marginLeft = 'auto';
+            arrow.style.opacity = '0.7';
+            display.appendChild(arrow);
+            
+            container.appendChild(display);
+
+            // Dropdown List
+            const list = document.createElement("ul");
             const options = header.selectOptions || [];
+            
+            list.style.position = "absolute";
+            list.style.top = "100%";
+            list.style.left = "0";
+            list.style.width = "100%";
+            list.style.maxHeight = "200px";
+            list.style.overflowY = "auto";
+            list.style.margin = "0";
+            list.style.padding = "0";
+            list.style.listStyle = "none";
+            list.style.backgroundColor = this.config.headerBackground;
+            list.style.border = `1px solid ${this.config.gridLineColor}`;
+            list.style.boxShadow = "0 4px 12px rgba(0,0,0,0.3)";
+            
             options.forEach(opt => {
-                const option = document.createElement("option");
-                option.value = opt;
-                option.innerText = opt;
-                input.appendChild(option);
+                const item = document.createElement("li");
+                item.textContent = opt;
+                item.style.padding = "6px 10px";
+                item.style.cursor = "pointer";
+                item.style.color = this.config.textColor;
+                item.style.backgroundColor = opt === initialValue ? (this.config.selectionColor || '#2a2a2e') : 'transparent';
+                
+                item.onmouseover = () => item.style.backgroundColor = this.config.selectionColor || '#4facfe33';
+                item.onmouseout = () => item.style.backgroundColor = opt === initialValue ? (this.config.selectionColor || '#2a2a2e') : 'transparent';
+                
+                item.onclick = (e) => {
+                    e.stopPropagation(); // prevent closing immediately from outside click
+                    container.setAttribute('data-value', opt);
+                    this.saveEditor(row, col);
+                };
+                list.appendChild(item);
             });
-            input.value = this.provider.getCellData(row, col)?.toString() || "";
+            
+            container.appendChild(list);
+
+            // Close if clicking outside
+            this.uiLayer.appendChild(container);
+            
+            // Handle keydown for navigation? For simplicity, just rendering list now.
+             // Focus container to handle keys? 
+             container.tabIndex = 0;
+             container.addEventListener('keydown', (e: KeyboardEvent) => {
+                 if(e.key === 'Escape') this.closeEditor();
+             });
+             setTimeout(() => container.focus(), 0);
+
+             // We override the default blur behavior because clicking the list triggers blur on container
+             // We need to manage closing manually or carefully.
+             // Simplest: Global click handler closes editor if not inside container.
+             // Handled by existing globalMouseDownHandler in init?
+             // Yes: update globalMouseDownHandler to check this.editor
+             return;
+             
         } else {
-             input = document.createElement("input");
+             const input = document.createElement("input");
              input.type = "text";
-             input.value = this.provider.getCellData(row, col)?.toString() || "";
-        }
+             input.value = initialValue;
+             this.editor = input;
+             
+             // ... Standard Input Styles ...
+            this.editor.style.position = "absolute";
+            this.editor.style.left = `${x}px`;
+            this.editor.style.top = `${y}px`;
+            this.editor.style.width = `${colWidth}px`;
+            this.editor.style.height = `${this.config.rowHeight}px`;
+            this.editor.style.boxSizing = "border-box";
+            this.editor.style.border = "2px solid #4facfe";
+            this.editor.style.outline = "none";
+            this.editor.style.font = this.config.font;
+            this.editor.style.padding = `${this.config.cellPadding}px`;
+            this.editor.style.zIndex = "10";
+            
+             this.editor.addEventListener("keydown", (e: Event) => {
+                const keyEvent = e as KeyboardEvent;
+                if (keyEvent.key === "Enter") this.saveEditor(row, col);
+                if (keyEvent.key === "Escape") this.closeEditor();
+            });
 
-        this.editor = input;
-        this.editor.style.position = "absolute";
-        this.editor.style.left = `${x}px`;
-        this.editor.style.top = `${y}px`;
-        this.editor.style.width = `${colWidth}px`;
-        this.editor.style.height = `${this.config.rowHeight}px`;
-        this.editor.style.boxSizing = "border-box";
-        this.editor.style.border = "2px solid #4facfe";
-        this.editor.style.outline = "none";
-        this.editor.style.font = this.config.font;
-        this.editor.style.padding = `${this.config.cellPadding}px`;
-        this.editor.style.zIndex = "10";
+            this.editor.addEventListener("blur", () => this.saveEditor(row, col));
 
-        // Select specific events
-        if (isSelect) {
-            this.editor.addEventListener("change", () => this.saveEditor(row, col));
-        }
+            this.editor.style.pointerEvents = "auto";
+            this.uiLayer.appendChild(this.editor);
 
-        this.editor.addEventListener("keydown", (e: Event) => {
-            const keyEvent = e as KeyboardEvent;
-            if (keyEvent.key === "Enter") this.saveEditor(row, col);
-            if (keyEvent.key === "Escape") this.closeEditor();
-        });
-
-        this.editor.addEventListener("blur", () => this.saveEditor(row, col));
-
-        this.editor.style.pointerEvents = "auto";
-        this.uiLayer.appendChild(this.editor);
-
-        // Delay focus to ensure DOM insertion is complete and prevent event raciness
-        setTimeout(() => {
-            if (this.editor) {
-                this.editor.focus();
+            setTimeout(() => {
                 if (this.editor instanceof HTMLInputElement) {
-                     this.editor.select();
+                    this.editor.focus();
+                    this.editor.select();
                 }
-            }
-        }, 0);
+            }, 0);
+        }
     }
 
     private saveEditor(row: number, col: number): void {
         if (this.editor && this.provider.setCellData) {
-            const val = this.editor.value;
+            let val = "";
+            if (this.editor instanceof HTMLInputElement) {
+                val = this.editor.value;
+            } else {
+                val = this.editor.getAttribute('data-value') || "";
+            }
             this.closeEditor();
             this.provider.setCellData(row, col, val);
             this.invalidate();
@@ -875,6 +960,10 @@ export class SciGrid {
         this.config = { ...this.config, ...newConfig };
         this.state.headerHeight = this.config.headerHeight;
         this.closeEditor(); // Close editor to avoid styling conflicts
+        
+        // Update Scroll Styles
+        this.scroller.updateScrollStyle(this.config.scrollbarThumbColor, this.config.scrollbarColor);
+        
         this.updateVirtualSize(); // In case row height/col width changed
         this.invalidate();
     }
