@@ -1,5 +1,5 @@
 {
-  "name": "sci-grid",
+  "name": "@velosci/sci-grid",
   "version": "0.0.1",
   "description": "",
   "main": "./dist/index.cjs",
