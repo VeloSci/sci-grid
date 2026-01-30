@@ -1,6 +1,6 @@
 {
-  "name": "@velosci/sci-grid",
-  "version": "0.0.1",
+  "name": "sci-grid",
+  "version": "0.1.0",
   "description": "",
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
