@@ -38,7 +38,8 @@ export class ExcelDataProvider implements IDataGridProvider {
             // Region (Select) - Store in sparse map for strings
             const regions = ['EU-West', 'US-East', 'Asia-Pac'];
             const rIndex = Math.floor(Math.random() * regions.length);
-            this.stringData.set(`${i}:4`, regions[rIndex]);
+            const region = regions[rIndex];
+            if (region) this.stringData.set(`${i}:4`, region);
         }
     }
 
@@ -46,7 +47,7 @@ export class ExcelDataProvider implements IDataGridProvider {
     getColumnCount(): number { return this.cols; }
     
     getCellData(row: number, col: number): any {
-        if (col === 4) return this.stringData.get(`${row}:${col}`);
+        if (col === 4) return this.stringData.get(`${row}:${col}`) ?? "";
         return this.data[row * this.cols + col];
     }
     

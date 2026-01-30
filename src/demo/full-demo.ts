@@ -1,8 +1,9 @@
 
-import { SciGrid } from '../sci-grid.ts';
-import { ExcelDataProvider } from './data-provider.ts';
+import { SciGrid } from '../sci-grid.js';
+import { ExcelDataProvider } from './data-provider.js';
+import type { SelectionInfo } from '../types/grid.js';
 
-export function runFullDemo(element) {
+export function runFullDemo(element: HTMLElement) {
     // Clear previous if any
     element.innerHTML = `
         <div style="height: 100%; position: relative;">
@@ -19,14 +20,22 @@ export function runFullDemo(element) {
     `;
 
     const container = document.getElementById('grid-full-demo');
+    if (!container) return; // Null check
+
     const provider = new ExcelDataProvider(1000000, 200);
 
     // Update stats
     const totalCells = provider.getRowCount() * provider.getColumnCount();
     const memMB = (totalCells * 8) / (1024 * 1024);
-    document.getElementById('stat-cells').textContent = `Cells: ${totalCells.toLocaleString()}`;
-    document.getElementById('stat-mem').textContent = `Memory: ${memMB.toFixed(2)} MB (Float64Array)`;
-    document.getElementById('stat-cols').textContent = `Columns: ${provider.getColumnCount()}`;
+    
+    const statCells = document.getElementById('stat-cells');
+    if (statCells) statCells.textContent = `Cells: ${totalCells.toLocaleString()}`;
+    
+    const statMem = document.getElementById('stat-mem');
+    if (statMem) statMem.textContent = `Memory: ${memMB.toFixed(2)} MB (Float64Array)`;
+    
+    const statCols = document.getElementById('stat-cols');
+    if (statCols) statCols.textContent = `Columns: ${provider.getColumnCount()}`;
 
     const darkConfig = {
         backgroundColor: '#0a0a0b',
@@ -34,7 +43,7 @@ export function runFullDemo(element) {
         textColor: '#94a3b8',
         font: '13px "JetBrains Mono", monospace',
         headerHeight: 40,
-        headerSubTextCount: 0,
+        headerSubTextCount: 0 as 0 | 1 | 2,
         headerBackground: '#121214',
         headerTextColor: '#4facfe',
         headerFont: 'bold 13px "Inter", sans-serif',
@@ -66,7 +75,7 @@ export function runFullDemo(element) {
 
     const grid = new SciGrid(container, provider, {
         ...darkConfig,
-        onSelectionChange: (info) => {
+        onSelectionChange: (info: SelectionInfo) => {
             const statSelection = document.getElementById('stat-selection');
             if(statSelection) {
                 let selText = '[-]';
@@ -84,17 +93,15 @@ export function runFullDemo(element) {
 
     // Theme Toggle
     const themeBtn = document.getElementById('theme-btn-demo');
-    let isDark = true;
-    themeBtn.addEventListener('click', () => {
-        isDark = !isDark;
-        if (isDark) {
-            grid.updateConfig(darkConfig);
-        } else {
-            grid.updateConfig(lightConfig);
-        }
-    });
-    
-    // Cleanup function? 
-    // Not strictly needed for this simple router structure unless we switch views often.
-    return grid;
+    if (themeBtn) {
+        let isDark = true;
+        themeBtn.addEventListener('click', () => {
+            isDark = !isDark;
+            if (isDark) {
+                grid.updateConfig(darkConfig);
+            } else {
+                grid.updateConfig(lightConfig);
+            }
+        });
+    }
 }

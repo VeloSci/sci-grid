@@ -240,8 +240,8 @@ const container = document.getElementById('grid');
 const provider = {
     getRowCount: () => 1000,
     getColumnCount: () => 5,
-    getCellData: (r, c) => \`Cell \${r}:\${c}\`,
-    getHeader: (c) => ({ name: \`Col \${c}\` })
+    getCellData: (r, c) => 'Cell ' + r + ':' + c,
+    getHeader: (c) => ({ name: 'Col ' + c })
 };
 
 const grid = new SciGrid(container, provider);</code></pre>
