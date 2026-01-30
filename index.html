@@ -15,6 +15,10 @@
             --code-bg: #161b22;
         }
 
+        html {
+            scroll-behavior: smooth;
+        }
+
         body {
             margin: 0;
             padding: 0;
@@ -36,6 +40,7 @@
             padding: 20px;
             overflow-y: auto;
             flex-shrink: 0;
+            height: 100%;
         }
 
         .brand {
@@ -85,15 +90,21 @@
         /* Main Content */
         .main-content {
             flex: 1;
-            padding: 40px;
+            padding: 0 40px 40px 40px;
             overflow-y: auto;
-            max-width: 1200px;
-            margin: 0 auto;
+            scroll-behavior: smooth;
+        }
+        
+        section {
+            padding-top: 40px;
+            margin-bottom: 60px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 40px;
         }
 
-        h1 { font-size: 32px; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; margin-bottom: 20px; }
-        h2 { font-size: 24px; margin-top: 40px; margin-bottom: 15px; color: #fff; }
-        h3 { font-size: 18px; margin-top: 30px; margin-bottom: 10px; }
+        h1 { font-size: 32px; padding-bottom: 10px; margin-bottom: 20px; color: #fff; }
+        h2 { font-size: 24px; margin-top: 20px; margin-bottom: 20px; color: #fff; }
+        h3 { font-size: 18px; margin-top: 30px; margin-bottom: 10px; color: #58a6ff; }
         p { line-height: 1.6; color: #8b949e; margin-bottom: 15px; }
 
         code {
@@ -113,12 +124,8 @@
             margin: 15px 0;
         }
 
-        .container {
-            width: 100%;
-        }
-
         .demo-container {
-            height: 400px; /* Default height for inline demos */
+            height: 300px;
             border: 1px solid var(--border-color);
             border-radius: 6px;
             overflow: hidden;
@@ -177,64 +184,53 @@
 
         <div class="nav-section">
             <div class="nav-title">Guide</div>
-            <a class="nav-link active" data-target="overview">Overview</a>
-            <a class="nav-link" data-target="install">Installation</a>
-            <a class="nav-link" data-target="quickstart">Quick Start</a>
+            <a class="nav-link" href="#overview">Overview</a>
+            <a class="nav-link" href="#install">Installation</a>
+            <a class="nav-link" href="#quickstart">Quick Start</a>
         </div>
 
         <div class="nav-section">
             <div class="nav-title">Features</div>
-            <a class="nav-link" data-target="columns">Column Types</a>
-            <a class="nav-link" data-target="selection">Selection & Editing</a>
-            <a class="nav-link" data-target="theming">Theming</a>
+            <a class="nav-link" href="#columns">Column Types</a>
+            <a class="nav-link" href="#theming">Theming</a>
         </div>
 
         <div class="nav-section">
             <div class="nav-title">Performance</div>
-            <a class="nav-link" data-target="bigdata">1 Million Rows</a>
+            <a class="nav-link" href="#bigdata">1 Million Rows</a>
         </div>
         
     </aside>
 
-    <main class="main-content" id="content-area">
-        <!-- Dynamic Content Loaded Here -->
-    </main>
+    <main class="main-content">
+        
+        <section id="overview">
+            <h1>Introduction</h1>
+            <p>SciGrid is a high-performance, canvas-based data grid for web applications. It is designed to handle millions of rows with smooth scrolling (60fps) and low memory footprint.</p>
+            <p>Unlike DOM-based grids, SciGrid uses a virtualization engine and HTML5 Canvas to render only what is visible, enabling it to scale comfortably to large datasets.</p>
+            
+            <h2>Key Features</h2>
+            <ul>
+                <li>🚀 <strong>Performance</strong>: Handle 1M+ rows effortlessly.</li>
+                <li>🖌️ <strong>Rich Types</strong>: Support for Checkboxes, Progress Bars, Dropdowns, and more.</li>
+                <li>🎨 <strong>Theming</strong>: Built-in dark and light modes, fully customizable.</li>
+                <li>⌨️ <strong>Keyboard Support</strong>: Excel-like navigation and editing.</li>
+            </ul>
+        </section>
 
-    <!-- Full Screen Container -->
-    <div id="full-demo-container" class="full-screen-demo">
-        <button class="close-full-screen" id="close-demo">← Back to Docs</button>
-        <div id="full-demo-root" style="width: 100%; height: 100%;"></div>
-    </div>
+        <section id="install">
+            <h1>Installation</h1>
+            <p>Install SciGrid via npm or pnpm:</p>
+            <pre><code>npm install sci-grid</code></pre>
+            <p>Or using pnpm:</p>
+            <pre><code>pnpm add sci-grid</code></pre>
+        </section>
 
-    <script type="module">
-        import { runFullDemo } from './src/demo/full-demo.ts';
-
-        const contentMap = {
-            overview: `
-                <h1>Introduction</h1>
-                <p>SciGrid is a high-performance, canvas-based data grid for web applications. It is designed to handle millions of rows with smooth scrolling (60fps) and low memory footprint.</p>
-                <p>Unlike DOM-based grids, SciGrid uses a virtualization engine and HTML5 Canvas to render only what is visible, enabling it to scale comfortably to large datasets.</p>
-                
-                <h2>Key Features</h2>
-                <ul>
-                    <li>🚀 <strong>Performance</strong>: Handle 1M+ rows effortlessly.</li>
-                    <li>🖌️ <strong>Rich Types</strong>: Support for Checkboxes, Progress Bars, Dropdowns, and more.</li>
-                    <li>🎨 <strong>Theming</strong>: Built-in dark and light modes, fully customizable.</li>
-                    <li>⌨️ <strong>Keyboard Support</strong>: Excel-like navigation and editing.</li>
-                </ul>
-                <button class="btn" onclick="document.querySelector('[data-target=bigdata]').click()">View Live Demo</button>
-            `,
-            install: `
-                <h1>Installation</h1>
-                <p>Install SciGrid via npm or pnpm:</p>
-                <pre><code>npm install sci-grid</code></pre>
-                <p>Or using pnpm:</p>
-                <pre><code>pnpm add sci-grid</code></pre>
-            `,
-            quickstart: `
-                <h1>Quick Start</h1>
-                <p>Get up and running with a basic grid in seconds.</p>
-                <pre><code>import { SciGrid } from 'sci-grid';
+        <section id="quickstart">
+            <h1>Quick Start</h1>
+            <p>Get up and running with a basic grid in seconds.</p>
+            <div id="demo-quickstart" class="demo-container"></div>
+            <pre><code>import { SciGrid } from 'sci-grid';
 
 const container = document.getElementById('grid');
 const provider = {
@@ -245,80 +241,105 @@ const provider = {
 };
 
 const grid = new SciGrid(container, provider);</code></pre>
-            `,
-            columns: `
-                <h1>Column Types</h1>
-                <p>SciGrid supports multiple column types to visualize data effectively.</p>
-                
-                <h3>Supported Types</h3>
-                <ul>
-                    <li><code>text</code>: Standard text display (default).</li>
-                    <li><code>numeric</code>: Right-aligned numbers.</li>
-                    <li><code>checkbox</code>: Interactive boolean toggle.</li>
-                    <li><code>progress</code>: Visual percentage bar (0-100).</li>
-                    <li><code>select</code>: Dropdown list for fixed options.</li>
-                </ul>
-                
-                <p>To use them, simply specify the <code>type</code> in your <code>getHeader</code> method.</p>
-                <pre><code>getHeader(col) {
-    if (col === 0) return { name: "Done", type: 'checkbox' };
-    if (col === 1) return { name: "Usage", type: 'progress' };
-    if (col === 2) return { name: "Zone", type: 'select', selectOptions: ['A', 'B'] };
-    return { name: "Value" };
-}</code></pre>
-            `,
-            bigdata: `
-                <h1>Performance Demo</h1>
-                <p>Experience the raw power of SciGrid with <strong>1,000,000 rows</strong>.</p>
-                <p>This demo uses a <code>Float64Array</code> backend for numbers and a sparse <code>Map</code> for strings, demonstrating efficient memory usage.</p>
-                <button class="btn" id="launch-full-demo">Launch Full Screen Demo</button>
-            `
-        };
+        </section>
 
-        const contentArea = document.getElementById('content-area');
+        <section id="columns">
+            <h1>Column Types</h1>
+            <p>SciGrid supports multiple column types to visualize data effectively.</p>
+            
+            <h3>Interactive Demo</h3>
+            <div id="demo-columns" class="demo-container"></div>
+
+            <h3>Supported Types</h3>
+            <ul>
+                <li><code>text</code>: Standard text display (default).</li>
+                <li><code>numeric</code>: Right-aligned numbers.</li>
+                <li><code>checkbox</code>: Interactive boolean toggle.</li>
+                <li><code>progress</code>: Visual percentage bar (0-100).</li>
+                <li><code>select</code>: Dropdown list for fixed options.</li>
+            </ul>
+        </section>
+
+        <section id="theming">
+            <h1>Theming</h1>
+            <p>SciGrid is fully themeable. You can customize colors, fonts, and dimensions to match your brand.</p>
+            
+            <h3>Cyberpunk Theme Example</h3>
+            <div id="demo-theming" class="demo-container"></div>
+            
+            <pre><code>// Example Config
+{
+    backgroundColor: '#000000',
+    gridLineColor: '#003b00',
+    textColor: '#00ff41',
+    headerBackground: '#001a00',
+    headerTextColor: '#00ff41',
+    font: '14px "Courier New", monospace'
+}</code></pre>
+        </section>
+
+        <section id="bigdata">
+            <h1>Performance Demo</h1>
+            <p>Experience the raw power of SciGrid with <strong>1,000,000 rows</strong>.</p>
+            <p>This demo uses a <code>Float64Array</code> backend for numbers and a sparse <code>Map</code> for strings, demonstrating efficient memory usage.</p>
+            <button class="btn" id="launch-full-demo">Launch Full Screen Demo</button>
+        </section>
+
+        <div style="height: 100px;"></div> <!-- Spacer -->
+    </main>
+
+    <!-- Full Screen Container -->
+    <div id="full-demo-container" class="full-screen-demo">
+        <button class="close-full-screen" id="close-demo">← Back to Docs</button>
+        <div id="full-demo-root" style="width: 100%; height: 100%;"></div>
+    </div>
+
+    <script type="module">
+        import { runFullDemo } from './src/demo/full-demo.ts';
+        import { initMiniDemos } from './src/demo/mini-demos.ts';
+
+        // Scroll Spy & Navigation
         const links = document.querySelectorAll('.nav-link');
+        const sections = document.querySelectorAll('section');
+        const mainContent = document.querySelector('.main-content');
+
+        function activateLink(id) {
+            links.forEach(l => {
+                l.classList.toggle('active', l.getAttribute('href') === '#' + id);
+            });
+        }
+
+        mainContent.addEventListener('scroll', () => {
+            let current = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                if (mainContent.scrollTop >= sectionTop - 100) {
+                    current = section.getAttribute('id');
+                }
+            });
+            if (current) activateLink(current);
+        });
+
+        // Initialize Demos
+        initMiniDemos();
+        
+        // Full Demo Handler
         const fullDemoContainer = document.getElementById('full-demo-container');
         const fullDemoRoot = document.getElementById('full-demo-root');
         const closeDemoBtn = document.getElementById('close-demo');
+        const launchBtn = document.getElementById('launch-full-demo');
 
-        function loadContent(key) {
-            // Update Active Link
-            links.forEach(l => l.classList.remove('active'));
-            const activeLink = document.querySelector(\`[data-target="\${key}"]\`);
-            if (activeLink) activeLink.classList.add('active');
-
-            // Render Content
-            if (contentMap[key]) {
-                contentArea.innerHTML = contentMap[key];
-            } else {
-                contentArea.innerHTML = '<h1>Not Found</h1>';
-            }
-
-            // Special Handlers
-            if (key === 'bigdata') {
-                document.getElementById('launch-full-demo').addEventListener('click', () => {
-                   fullDemoContainer.style.display = 'block';
-                   // Init Demo
-                   runFullDemo(fullDemoRoot);
-                });
-            }
-        }
-
-        // Event Listeners
-        links.forEach(link => {
-            link.addEventListener('click', () => {
-                const target = link.getAttribute('data-target');
-                loadContent(target);
+        if (launchBtn) {
+            launchBtn.addEventListener('click', () => {
+               fullDemoContainer.style.display = 'block';
+               runFullDemo(fullDemoRoot);
             });
-        });
+        }
 
         closeDemoBtn.addEventListener('click', () => {
             fullDemoContainer.style.display = 'none';
             fullDemoRoot.innerHTML = '';
         });
-
-        // Initial Load
-        loadContent('overview');
 
     </script>
 </body>
