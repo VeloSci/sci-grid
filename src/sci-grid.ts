@@ -10,7 +10,7 @@ export class SciGrid {
     private uiLayer: HTMLElement;
     private provider: IDataGridProvider;
     private config: GridConfig;
-    private editor: HTMLInputElement | null = null;
+    private editor: HTMLInputElement | HTMLSelectElement | null = null;
     private resizeObserver: ResizeObserver | null = null;
     private globalMouseDownHandler: ((e: MouseEvent) => void) | null = null;
 
@@ -752,9 +752,28 @@ export class SciGrid {
         const y = row * this.config.rowHeight - this.state.scrollY + this.state.headerHeight;
         const colWidth = this.getColumnWidth(col);
 
-        this.editor = document.createElement("input");
-        this.editor.type = "text";
-        this.editor.value = this.provider.getCellData(row, col)?.toString() || "";
+        const header = this.provider.getHeader(col);
+        const isSelect = header.type === 'select';
+        
+        let input: HTMLInputElement | HTMLSelectElement;
+
+        if (isSelect) {
+            input = document.createElement("select");
+            const options = header.selectOptions || [];
+            options.forEach(opt => {
+                const option = document.createElement("option");
+                option.value = opt;
+                option.innerText = opt;
+                input.appendChild(option);
+            });
+            input.value = this.provider.getCellData(row, col)?.toString() || "";
+        } else {
+             input = document.createElement("input");
+             input.type = "text";
+             input.value = this.provider.getCellData(row, col)?.toString() || "";
+        }
+
+        this.editor = input;
         this.editor.style.position = "absolute";
         this.editor.style.left = `${x}px`;
         this.editor.style.top = `${y}px`;
@@ -767,9 +786,15 @@ export class SciGrid {
         this.editor.style.padding = `${this.config.cellPadding}px`;
         this.editor.style.zIndex = "10";
 
-        this.editor.addEventListener("keydown", (e) => {
-            if (e.key === "Enter") this.saveEditor(row, col);
-            if (e.key === "Escape") this.closeEditor();
+        // Select specific events
+        if (isSelect) {
+            this.editor.addEventListener("change", () => this.saveEditor(row, col));
+        }
+
+        this.editor.addEventListener("keydown", (e: Event) => {
+            const keyEvent = e as KeyboardEvent;
+            if (keyEvent.key === "Enter") this.saveEditor(row, col);
+            if (keyEvent.key === "Escape") this.closeEditor();
         });
 
         this.editor.addEventListener("blur", () => this.saveEditor(row, col));
@@ -781,7 +806,9 @@ export class SciGrid {
         setTimeout(() => {
             if (this.editor) {
                 this.editor.focus();
-                this.editor.select();
+                if (this.editor instanceof HTMLInputElement) {
+                     this.editor.select();
+                }
             }
         }, 0);
     }
