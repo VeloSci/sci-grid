@@ -1,10 +1,13 @@
 export type GridDataValue = string | number | null | undefined;
 
+export type ColumnType = 'text' | 'numeric' | 'date' | 'checkbox' | 'select' | 'progress' | 'sparkline';
+
 export interface ColumnHeaderInfo {
     name: string;
     units?: string;
     description?: string;
-    variant?: 'numeric' | 'text' | 'date';
+    type?: ColumnType;
+    selectOptions?: string[]; // For 'select' type
     isEditable?: boolean;
     isResizable?: boolean;
     isSortable?: boolean;
