@@ -291,6 +291,7 @@ export class GridRenderer {
         const { width, height, headerHeight, scrollX, scrollY } = state;
 
         // 1. Draw Insertion Indicator (Full Height)
+        // 1. Draw Insertion Indicator (Full Height)
         if (state.reorderingTarget !== null) {
             let currentX = rowNumOffset - scrollX;
             for (let i = 0; i < state.reorderingTarget; i++) {
@@ -302,6 +303,10 @@ export class GridRenderer {
                 }
             }
 
+            // Calculate height limit
+            const totalContentHeight = provider.getRowCount() * config.rowHeight + headerHeight - scrollY;
+            const indicatorHeight = Math.min(height, Math.max(headerHeight, totalContentHeight));
+
             ctx.save();
             ctx.strokeStyle = "#4facfe";
             ctx.lineWidth = 4;
@@ -309,7 +314,7 @@ export class GridRenderer {
             ctx.shadowColor = "#4facfe";
             ctx.beginPath();
             ctx.moveTo(currentX, 0);
-            ctx.lineTo(currentX, height);
+            ctx.lineTo(currentX, indicatorHeight);
             ctx.stroke();
             ctx.restore();
         }
