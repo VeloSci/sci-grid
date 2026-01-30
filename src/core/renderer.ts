@@ -413,7 +413,7 @@ export class GridRenderer {
             return;
         }
 
-        // Default Text
+        // Default Text or Select
         if (data !== null && data !== undefined) {
             ctx.fillStyle = textColor;
             ctx.textAlign = 'left';
@@ -422,6 +422,20 @@ export class GridRenderer {
             const text = data.toString();
             // TODO: Better truncation logic
             ctx.fillText(text, x + padding, y + height / 2);
+        }
+
+        if (type === 'select') {
+             // Draw small arrow
+             ctx.fillStyle = textColor;
+             ctx.globalAlpha = 0.5;
+             ctx.beginPath();
+             const ax = x + width - 15;
+             const ay = y + height / 2 - 2;
+             ctx.moveTo(ax, ay);
+             ctx.lineTo(ax + 8, ay);
+             ctx.lineTo(ax + 4, ay + 5);
+             ctx.fill();
+             ctx.globalAlpha = 1.0;
         }
     }
 }
