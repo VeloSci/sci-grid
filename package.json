@@ -68,6 +68,10 @@
     "url": "https://github.com/VeloSci/sci-grid/issues"
   },
   "homepage": "https://github.com/VeloSci/sci-grid#readme",
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
   "peerDependencies": {
     "@angular/core": ">=16.0.0",
     "react": ">=18.0.0",
