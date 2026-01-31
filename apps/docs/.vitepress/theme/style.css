@@ -1,26 +1,218 @@
-/**
- * Custom color palette inspired by VeloSci / SciChart Engine
- * Dark, scientific, and high-performance feel.
- */
+/* ============================================
+   SciGrid Documentation - Orthogonal Theme
+   ============================================ */
+
 :root {
-  --vp-c-brand-1: #3b82f6;
-  --vp-c-brand-2: #60a5fa;
-  --vp-c-brand-3: #93c5fd;
-  
-  --vp-home-hero-name-color: transparent;
-  --vp-home-hero-name-background: -webkit-linear-gradient(120deg, #3b82f6 30%, #a855f7);
+  --vp-c-brand: #3b82f6;
+  --vp-c-brand-light: #60a5fa;
+  --vp-c-brand-dark: #2563eb;
+  --sci-accent-neon: #00f2ff;
+  --sci-gradient-brand: linear-gradient(135deg, #3b82f6 0%, #00f2ff 100%);
+  --sci-glass-bg: rgba(255, 255, 255, 0.7);
+  --sci-glass-border: rgba(0, 0, 0, 0.08);
+  --sci-surface-1: #ffffff;
+  --sci-surface-2: #f8fafc;
+  --sci-surface-3: #f1f5f9;
+  --sci-text-primary: #0f172a;
+  --sci-text-secondary: #475569;
+  --sci-border: #e2e8f0;
+  --sci-code-bg: #f8fafc;
+  --sci-layout-max-width: 1440px;
+  --sci-layout-padding: 40px;
+  --vp-nav-max-width: var(--sci-layout-max-width) !important;
+  --vp-layout-max-width: var(--sci-layout-max-width) !important;
+  --vp-nav-pad-left: var(--sci-layout-padding) !important;
+  --vp-nav-pad-right: var(--sci-layout-padding) !important;
+  --grid-size: 40px;
+  --grid-color: rgba(59, 130, 246, 0.05);
 }
 
 .dark {
-  --vp-c-bg: #0f172a;
-  --vp-c-bg-alt: #1e293b;
-  --vp-c-bg-soft: #334155;
+  --vp-c-brand: #60a5fa;
+  --sci-glass-bg: rgba(10, 15, 28, 0.8);
+  --sci-glass-border: rgba(255, 255, 255, 0.05);
+  --sci-surface-1: #05080f;
+  --sci-surface-2: #0a0f1c;
+  --sci-surface-3: #12192b;
+  --sci-text-primary: #f1f5f9;
+  --sci-text-secondary: #94a3b8;
+  --sci-border: #1e293b;
+  --sci-code-bg: #0a0f1c;
+  --grid-color: rgba(0, 242, 255, 0.05);
+  --vp-c-bg: var(--sci-surface-1);
 }
 
-/* Custom Hero Layout Adjustments */
-.VPHero .name {
-  background-clip: text;
+body {
+  -webkit-font-smoothing: antialiased;
+  background-color: var(--sci-surface-1);
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background-image: linear-gradient(var(--grid-color) 1px, transparent 1px), linear-gradient(90deg, var(--grid-color) 1px, transparent 1px);
+  background-size: var(--grid-size) var(--grid-size);
+  z-index: -1;
+  mask-image: radial-gradient(circle at 50% 50%, black, transparent 80%);
+}
+
+.VPNav {
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  background: var(--sci-glass-bg) !important;
+  border-bottom: 1px solid var(--sci-glass-border) !important;
+  width: 100% !important;
+  left: 0 !important;
+  right: 0 !important;
+  z-index: 300 !important;
+}
+
+.VPNavBar,
+.VPNavBar .container,
+.VPNavBar .content,
+.VPNavBar .content-body {
+  background: transparent !important;
+}
+
+.VPNavBar .divider {
+  display: none !important;
+}
+
+.VPNavBarTitle .title {
+  font-weight: 800 !important;
+  background: var(--sci-gradient-brand);
   -webkit-background-clip: text;
-  -webkit-text-fill-color: var(--vp-home-hero-name-color);
-  background-image: var(--vp-home-hero-name-background);
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  transition: opacity 0.2s ease;
+}
+
+.VPNavBarTitle:hover .title {
+  opacity: 0.8;
+}
+
+.VPHero {
+  min-height: 80vh;
+  display: flex !important;
+  align-items: center;
+  animation: heroFloat 8s cubic-bezier(0.4, 0, 0.2, 1) infinite alternate;
+}
+
+@keyframes heroFloat {
+  from { transform: translateY(0); }
+  to { transform: translateY(-10px); }
+}
+
+.VPHero .name {
+  font-size: clamp(3.5rem, 8vw, 5.5rem) !important;
+  font-weight: 900 !important;
+  background: var(--sci-gradient-brand);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.VPHero .text {
+  font-weight: 700 !important;
+  color: var(--sci-text-primary) !important;
+}
+
+.VPButton.brand {
+  background: var(--sci-gradient-brand) !important;
+  box-shadow: 0 0 20px rgba(59, 130, 246, 0.3);
+  border: none !important;
+}
+
+.VPButton.brand:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0 30px rgba(0, 242, 255, 0.4);
+}
+
+/* ============================================
+   Features & Components
+   ============================================ */
+
+.VPFeature {
+  background: var(--sci-glass-bg) !important;
+  border: 1px solid var(--sci-glass-border) !important;
+  border-radius: 20px !important;
+  padding: 32px !important;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  backdrop-filter: blur(10px);
+  height: 100%;
+}
+
+.VPFeature:hover {
+  transform: translateY(-8px);
+  border-color: var(--vp-c-brand) !important;
+  box-shadow: 0 20px 40px rgba(59, 130, 246, 0.15);
+}
+
+.VPSidebar {
+  background: var(--sci-surface-1) !important;
+  border-right: 1px solid var(--sci-border) !important;
+  backdrop-filter: blur(10px);
+}
+
+.dark .VPSidebar {
+  background: rgba(10, 15, 28, 0.7) !important;
+}
+
+/* Align markdown content on home page */
+.VPHome .vp-doc {
+  padding: 0 var(--sci-layout-padding) !important;
+  max-width: var(--sci-layout-max-width) !important;
+  margin: 0 auto !important;
+}
+
+.vp-doc h1 {
+  font-size: 2.8rem !important;
+  font-weight: 900 !important;
+  letter-spacing: -0.04em;
+  background: var(--sci-gradient-brand);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 2rem;
+}
+
+.vp-doc h2 {
+  border-bottom: 1px solid var(--sci-border);
+  font-weight: 700 !important;
+  padding-bottom: 0.5rem;
+}
+
+.vp-doc div[class*='language-'] {
+  border-radius: 12px !important;
+  border: 1px solid var(--sci-border) !important;
+  background: var(--sci-code-bg) !important;
+}
+
+.vp-doc table {
+  border-radius: 8px;
+  border: 1px solid var(--sci-border);
+  background: var(--sci-surface-2);
+  width: 100%;
+}
+
+.vp-doc th {
+  background: var(--sci-surface-3) !important;
+  color: var(--sci-text-primary);
+  text-transform: uppercase;
+  font-size: 0.75rem;
+}
+
+.VPSidebar {
+  background: var(--sci-surface-2) !important;
+  border-right: 1px solid var(--sci-border) !important;
+}
+
+.VPSidebarItem.is-active .text {
+  color: var(--vp-c-brand) !important;
+  font-weight: 600 !important;
+}
+
+::selection {
+  background: rgba(0, 242, 255, 0.2);
 }

@@ -2,7 +2,17 @@
   "extends": "../../tsconfig.json",
   "compilerOptions": {
     "outDir": "./dist",
-    "rootDir": "."
+    "types": ["node"],
+    "jsx": "preserve",
+    "jsxImportSource": "vue"
   },
-  "include": ["src", "vite.config.ts", "../../vitest.setup.ts"]
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.vue",
+    "components/**/*.vue",
+    ".vitepress/**/*.ts",
+    ".vitepress/**/*.vue",
+    "**/*.md",
+    "vite.config.ts"
+  ]
 }

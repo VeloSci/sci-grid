@@ -1,6 +1,6 @@
 
-import { SciGrid } from '@velo-sci/core';
-import type { IDataGridProvider, ColumnHeaderInfo, GridConfig } from '../types/grid.js';
+import { SciGrid } from '@sci-grid/core';
+import type { IDataGridProvider, ColumnHeaderInfo, GridConfig } from '@sci-grid/core';
 
 // Simple helper for mini providers
 export class SimpleDemoProvider implements IDataGridProvider {
@@ -171,7 +171,7 @@ export function initMiniDemos() {
         new SciGrid(headersContainer, provider, {
             ...commonConfig,
             headerHeight: 65,
-            headerSubTextCount: 2,
+            headerSubTextCount: 2 as 0 | 1 | 2,
             headerTitleStyle: { color: '#58a6ff', font: 'bold 12px Inter' },
             headerUnitsStyle: { color: '#8b949e', font: '10px Inter' },
             headerDescriptionStyle: { color: '#444c56', font: 'italic 10px Inter' }
@@ -266,7 +266,7 @@ export function initMiniDemos() {
         new SciGrid(visualizationContainer, provider, {
             ...commonConfig,
             headerHeight: 50,
-            headerSubTextCount: 1
+            headerSubTextCount: 1 as 0 | 1 | 2
         });
     }
 

@@ -1,7 +1,9 @@
 <script setup lang="ts">
-import { SciGridVue } from '@velo-sci/vue';
+import { SciGridVue } from '@sci-grid/vue';
 import { shallowRef } from 'vue';
+import { useGridTheme } from '../src/composables/useGridTheme';
 
+const { gridConfig } = useGridTheme();
 const provider = shallowRef({
   getRowCount: () => 1_000_000,
   getColumnCount: () => 1000,
@@ -15,16 +17,10 @@ const provider = shallowRef({
     <SciGridVue 
       :provider="provider"
       :config="{ 
-        rowHeight: 30, 
+        ...gridConfig,
+        rowHeight: 32, 
         showRowNumbers: true, 
-        columnWidth: 120,
-        backgroundColor: '#0f172a',
-        gridLineColor: '#334155',
-        textColor: '#f8fafc',
-        headerBackground: '#1e293b',
-        headerTextColor: '#93c5fd',
-        rowNumberBackground: '#1e293b',
-        rowNumberTextColor: '#64748b'
+        columnWidth: 120
       }"
     />
   </div>
@@ -37,6 +33,6 @@ const provider = shallowRef({
   border: 1px solid var(--vp-c-divider);
   border-radius: 8px;
   overflow: hidden;
-  margin: 1rem 0;
+  margin: 0;
 }
 </style>

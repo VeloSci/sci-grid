@@ -1,8 +1,11 @@
 <script setup lang="ts">
-import { SciGridVue } from '@velo-sci/vue';
+import { SciGridVue } from '@sci-grid/vue';
+import type { ColumnHeaderInfo } from '@sci-grid/core';
 import { shallowRef } from 'vue';
+import { useGridTheme } from '../src/composables/useGridTheme';
 
-const headers = [
+const { gridConfig } = useGridTheme();
+const headers: ColumnHeaderInfo[] = [
   { name: "Product", type: 'text', isEditable: true },
   { name: "Category", type: 'select', selectOptions: ['Electronics', 'Food', 'Books'], isEditable: true },
   { name: "Stock", type: 'numeric', isEditable: true },
@@ -17,15 +20,15 @@ const data = [
 const provider = shallowRef({
   getRowCount: () => data.length,
   getColumnCount: () => headers.length,
-  getCellData: (r, c) => data[r][c],
-  getHeader: (c) => headers[c],
-  setCellData: (r, c, val) => { data[r][c] = val; }
+  getCellData: (r: number, c: number) => data[r][c],
+  getHeader: (c: number) => headers[c],
+  setCellData: (r: number, c: number, val: any) => { data[r][c] = val; }
 });
 </script>
 
 <template>
   <div class="demo-container">
-    <SciGridVue :provider="provider" />
+    <SciGridVue :provider="provider" :config="gridConfig" />
   </div>
 </template>
 

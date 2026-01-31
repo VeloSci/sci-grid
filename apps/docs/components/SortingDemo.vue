@@ -1,8 +1,11 @@
 <script setup lang="ts">
-import { SciGridVue } from '@velo-sci/vue';
+import { SciGridVue } from '@sci-grid/vue';
+import type { ColumnHeaderInfo } from '@sci-grid/core';
 import { shallowRef, ref } from 'vue';
+import { useGridTheme } from '../src/composables/useGridTheme';
 
-const headers = [
+const { gridConfig } = useGridTheme();
+const headers: ColumnHeaderInfo[] = [
   { name: "Country", type: 'text', isSortable: true },
   { name: "Population (M)", type: 'numeric', isSortable: true },
   { name: "Growth %", type: 'progress', isSortable: true }
@@ -19,8 +22,8 @@ const originalData = [...data.value];
 const provider = shallowRef({
   getRowCount: () => data.value.length,
   getColumnCount: () => headers.length,
-  getCellData: (r, c) => data.value[r][c],
-  getHeader: (c) => headers[c]
+  getCellData: (r: number, c: number) => data.value[r][c],
+  getHeader: (c: number) => headers[c]
 });
 
 const onSort = (col: number, order: 'asc' | 'desc' | null) => {
@@ -36,11 +39,6 @@ const onSort = (col: number, order: 'asc' | 'desc' | null) => {
             return 0;
         });
     }
-    // Provoke reactivity update if needed, though SciGrid usually needs explicit invalidate.
-    // In Vue wrapper, prop change might not trigger deep invalidate unless provider ref changes or we call method.
-    // For simplicity in this demo, let's just force update via re-creating provider wrapper or similar hack,
-    // or ideally the wrapper exposes an 'invalidate' method. The current Vue wrapper doesn't expose methods easily.
-    // We'll rely on key-changing the component or updating the provider reference.
     provider.value = { ...provider.value }; 
     updateTrigger.value++;
 };
@@ -49,7 +47,7 @@ const updateTrigger = ref(0);
 
 <template>
   <div class="demo-container">
-    <SciGridVue :provider="provider" :config="{ onSort }" :key="updateTrigger" />
+    <SciGridVue :provider="provider" :config="{ ...gridConfig, onSort }" :key="updateTrigger" />
   </div>
 </template>
 

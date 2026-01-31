@@ -10,6 +10,7 @@ export default defineConfig({
       { text: 'API', link: '/api/' },
       { text: 'Examples', link: '/examples/basic' }
     ],
+    logo: '/logo.svg',
     sidebar: {
       '/guide/': [
         {
@@ -76,6 +77,10 @@ export default defineConfig({
           ]
         }
       ]
+    },
+    footer: {
+      message: 'Integrated under the Sci DNA / VeloSci Ecosystem',
+      copyright: '© 2026 VeloSci Instrumentation Services'
     },
     socialLinks: [
       { icon: 'github', link: 'https://github.com/VeloSci/sci-grid' }

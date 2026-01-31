@@ -1,7 +1,9 @@
 <script setup lang="ts">
-import { SciGridVue } from '@velo-sci/vue';
+import { SciGridVue } from '@sci-grid/vue';
 import { shallowRef } from 'vue';
+import { useGridTheme } from '../src/composables/useGridTheme';
 
+const { gridConfig } = useGridTheme();
 const provider = shallowRef({
   getRowCount: () => 1000,
   getColumnCount: () => 20,
@@ -15,15 +17,9 @@ const provider = shallowRef({
     <SciGridVue 
       :provider="provider"
       :config="{ 
+        ...gridConfig,
         rowHeight: 35, 
-        showRowNumbers: true,
-        backgroundColor: '#0f172a',
-        gridLineColor: '#334155',
-        textColor: '#f8fafc',
-        headerBackground: '#1e293b',
-        headerTextColor: '#93c5fd',
-        rowNumberBackground: '#1e293b',
-        rowNumberTextColor: '#64748b'
+        showRowNumbers: true
       }"
     />
   </div>

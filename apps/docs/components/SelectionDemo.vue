@@ -1,8 +1,11 @@
 <script setup lang="ts">
-import { SciGridVue } from '@velo-sci/vue';
+import { SciGridVue } from '@sci-grid/vue';
 import { shallowRef, ref } from 'vue';
+import { useGridTheme } from '../src/composables/useGridTheme';
+import type { ColumnHeaderInfo } from '@sci-grid/core';
 
-const headers = [
+const { gridConfig } = useGridTheme();
+const headers: ColumnHeaderInfo[] = [
   { name: "First Name", type: 'text' },
   { name: "Last Name", type: 'text' },
   { name: "Points", type: 'numeric' }
@@ -16,8 +19,8 @@ const data = [
 const provider = shallowRef({
   getRowCount: () => data.length,
   getColumnCount: () => headers.length,
-  getCellData: (r, c) => data[r][c],
-  getHeader: (c) => headers[c]
+  getCellData: (r: number, c: number) => data[r][c],
+  getHeader: (c: number) => headers[c]
 });
 
 const selectionInfo = ref('Select cells...');
@@ -29,7 +32,7 @@ const onSelectionChange = (info: any) => {
 <template>
   <div class="demo-wrapper">
     <div class="demo-container">
-        <SciGridVue :provider="provider" :config="{ showRowNumbers: true, onSelectionChange }" />
+        <SciGridVue :provider="provider" :config="{ ...gridConfig, showRowNumbers: true, onSelectionChange }" />
     </div>
     <div class="log">{{ selectionInfo }}</div>
   </div>
@@ -38,5 +41,5 @@ const onSelectionChange = (info: any) => {
 <style scoped>
 .demo-wrapper { border: 1px solid var(--vp-c-divider); border-radius: 8px; overflow: hidden; margin: 1rem 0; }
 .demo-container { height: 250px; width: 100%; }
-.log { padding: 10px; background: var(--vp-c-bg-alt); font-family: monospace; font-size: 12px; border-top: 1px solid var(--vp-c-divider); }
+.log { padding: 10px; background: var(--vp-c-bg-alt); color: var(--vp-c-text-1); font-family: monospace; font-size: 12px; border-top: 1px solid var(--vp-c-divider); }
 </style>

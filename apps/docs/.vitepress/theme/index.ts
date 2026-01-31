@@ -1,3 +1,4 @@
+import type { Theme } from 'vitepress';
 import DefaultTheme from 'vitepress/theme';
 import BasicDemo from '../../components/BasicDemo.vue';
 import MillionRowsDemo from '../../components/MillionRowsDemo.vue';
@@ -9,10 +10,12 @@ import HeadersDemo from '../../components/HeadersDemo.vue';
 import SelectionDemo from '../../components/SelectionDemo.vue';
 import StreamingDemo from '../../components/StreamingDemo.vue';
 import VisualsDemo from '../../components/VisualsDemo.vue';
+import NeonLanding from '../../components/NeonLanding.vue';
+import NeonGridDemo from '../../components/NeonGridDemo.vue';
 import './style.css';
 
-export default {
-  ...DefaultTheme,
+const theme: Theme = {
+  extends: DefaultTheme,
   enhanceApp({ app }) {
     app.component('BasicDemo', BasicDemo);
     app.component('MillionRowsDemo', MillionRowsDemo);
@@ -24,5 +27,9 @@ export default {
     app.component('SelectionDemo', SelectionDemo);
     app.component('StreamingDemo', StreamingDemo);
     app.component('VisualsDemo', VisualsDemo);
+    app.component('NeonLanding', NeonLanding);
+    app.component('NeonGridDemo', NeonGridDemo);
   }
 };
+
+export default theme;

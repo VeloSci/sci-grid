@@ -1,11 +1,11 @@
 # Angular Integration
 
-The `@velo-sci/angular` package provides a native Angular component.
+The `@sci-grid/angular` package provides a native Angular component.
 
 ## Installation
 
 ```bash
-pnpm add @velo-sci/angular @velo-sci/core
+pnpm add @sci-grid/angular @sci-grid/core
 ```
 
 ## Component Registration
@@ -14,7 +14,7 @@ Import the `SciGridAngular` component into your component or module.
 
 ```typescript
 import { Component } from '@angular/core';
-import { SciGridAngular } from '@velo-sci/angular';
+import { SciGridAngular } from '@sci-grid/angular';
 
 @Component({
   selector: 'app-root',

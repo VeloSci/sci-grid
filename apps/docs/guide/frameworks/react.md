@@ -1,11 +1,11 @@
 # React Integration
 
-The `@velo-sci/react` package provides a first-class React component wrapper around the core SciGrid library.
+The `@sci-grid/react` package provides a first-class React component wrapper around the core SciGrid library.
 
 ## Installation
 
 ```bash
-pnpm add @velo-sci/react @velo-sci/core
+pnpm add @sci-grid/react @sci-grid/core
 ```
 
 ## Usage
@@ -13,7 +13,7 @@ pnpm add @velo-sci/react @velo-sci/core
 Use the `SciGridReact` component in your application.
 
 ```tsx
-import { SciGridReact } from '@velo-sci/react';
+import { SciGridReact } from '@sci-grid/react';
 import { useMemo } from 'react';
 
 const MyGrid = () => {

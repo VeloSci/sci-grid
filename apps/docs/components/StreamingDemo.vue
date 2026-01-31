@@ -1,8 +1,11 @@
 <script setup lang="ts">
-import { SciGridVue } from '@velo-sci/vue';
+import { SciGridVue } from '@sci-grid/vue';
+import type { ColumnHeaderInfo } from '@sci-grid/core';
 import { shallowRef, onMounted, onUnmounted, ref } from 'vue';
+import { useGridTheme } from '../src/composables/useGridTheme';
 
-const headers = [
+const { gridConfig } = useGridTheme();
+const headers: ColumnHeaderInfo[] = [
   { name: "Sensor", type: 'text' },
   { name: "Value", type: 'numeric' },
   { name: "Activity", type: 'progress' }
@@ -16,11 +19,9 @@ const data = ref([
 const provider = shallowRef({
   getRowCount: () => data.value.length,
   getColumnCount: () => headers.length,
-  getCellData: (r, c) => data.value[r][c],
-  getHeader: (c) => headers[c]
+  getCellData: (r: number, c: number) => data.value[r][c],
+  getHeader: (c: number) => headers[c]
 });
-
-const gridRef = ref<any>(null);
 
 let interval: any;
 onMounted(() => {
@@ -29,9 +30,6 @@ onMounted(() => {
             row[1] = Math.floor(Math.random() * 100);
             row[2] = Math.floor(Math.random() * 100);
         });
-        // Access internal grid instance if exposed, otherwise provoke provider update
-        // With SciGridVue, if we can't access instance easily, we might need a better wrapper.
-        // But assuming we can get the component ref or just update provider shallow ref.
         provider.value = { ...provider.value }; 
     }, 100);
 });
@@ -41,7 +39,7 @@ onUnmounted(() => clearInterval(interval));
 
 <template>
   <div class="demo-container">
-    <SciGridVue :provider="provider" />
+    <SciGridVue :provider="provider" :config="gridConfig" />
   </div>
 </template>
 

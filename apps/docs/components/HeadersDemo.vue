@@ -1,8 +1,11 @@
 <script setup lang="ts">
-import { SciGridVue } from '@velo-sci/vue';
-import { shallowRef } from 'vue';
+import { SciGridVue } from '@sci-grid/vue';
+import type { ColumnHeaderInfo } from '@sci-grid/core';
+import { shallowRef, computed } from 'vue';
+import { useGridTheme } from '../src/composables/useGridTheme';
 
-const headers = [
+const { gridConfig } = useGridTheme();
+const headers: ColumnHeaderInfo[] = [
   { name: "Voltage", units: "mV", description: "Input range" },
   { name: "Current", units: "mA", description: "Peak load" },
   { name: "Phase", units: "deg", description: "Angle" }
@@ -12,17 +15,18 @@ const data = Array.from({length: 20}, (_, i) => [i * 10, i * 5, i * 2]);
 const provider = shallowRef({
   getRowCount: () => data.length,
   getColumnCount: () => headers.length,
-  getCellData: (r, c) => data[r][c],
-  getHeader: (c) => headers[c]
+  getCellData: (r: number, c: number) => data[r][c],
+  getHeader: (c: number) => headers[c]
 });
 
-const config = {
+const config = computed(() => ({
+  ...gridConfig.value,
   headerHeight: 65,
-  headerSubTextCount: 2,
-  headerTitleStyle: { color: '#58a6ff', font: 'bold 12px Inter' },
-  headerUnitsStyle: { color: '#8b949e', font: '10px Inter' },
-  headerDescriptionStyle: { color: '#444c56', font: 'italic 10px Inter' }
-};
+  headerSubTextCount: 2 as 0 | 1 | 2,
+  headerTitleStyle: { color: gridConfig.value.headerTextColor, font: 'bold 12px Inter' },
+  headerUnitsStyle: { color: gridConfig.value.rowNumberTextColor, font: '10px Inter' },
+  headerDescriptionStyle: { color: gridConfig.value.rowNumberTextColor, font: 'italic 9px Inter' }
+}));
 </script>
 
 <template>
