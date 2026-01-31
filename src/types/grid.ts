@@ -24,6 +24,7 @@ export interface IDataGridProvider {
     getRawData?(): Float32Array | Float64Array | null;
     setCellData?(row: number, col: number, value: any): void;
     setHeader?(col: number, header: ColumnHeaderInfo): void;
+    onRowsNeeded?(start: number, end: number): void; // Hook for infinite loading
 }
 
 export interface HeaderLineStyle {
@@ -59,10 +60,16 @@ export interface GridStyle {
     dragHandleColor?: string;
 }
 
+export interface SelectionRange {
+    startRow: number;
+    endRow: number;
+    startCol: number;
+    endCol: number;
+}
+
 export interface SelectionInfo {
     mode: SelectionMode;
-    selectedRows: number[];
-    selectedCols: number[];
+    ranges: SelectionRange[];
     anchorRow: number | null;
     anchorCol: number | null;
 }
@@ -81,6 +88,7 @@ export interface GridConfig extends GridStyle {
     onHeaderContextMenu?: ((col: number, e: MouseEvent) => void) | undefined;
     onSort?: ((col: number, order: 'asc' | 'desc' | null) => void) | undefined;
     onSelectionChange?: ((info: SelectionInfo) => void) | undefined;
+    persistenceKey?: string;      // Key to save/load state from localStorage
 }
 
 export type SelectionMode = 'cell' | 'row' | 'column' | 'all';
@@ -93,8 +101,10 @@ export interface ViewportState {
     headerHeight: number;
     columnWidths: Record<number, number>;
     columnOrder: number[];
+    columnOffsets: number[]; // Cumulative offsets for binary search optimization
     selectedRows: Set<number>;
     selectedCols: Set<number>;
+    selectionRanges: SelectionRange[];
     anchorRow: number | null;
     anchorCol: number | null;
     resizingCol: number | null;
