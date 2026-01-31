@@ -1,6 +1,6 @@
 import { useRef, useEffect, type CSSProperties } from 'react';
-import { SciGrid } from '@velo-sci/core';
-import type { GridConfig, IDataGridProvider } from '@velo-sci/core';
+import { SciGrid } from '@sci-grid/core';
+import type { GridConfig, IDataGridProvider } from '@sci-grid/core';
 
 interface SciGridReactProps {
   provider: IDataGridProvider;
