@@ -13,11 +13,11 @@ export default defineConfig({
       formats: ['es', 'cjs']
     },
     rollupOptions: {
-      external: ['vue', '@velo-sci/core'],
+      external: ['vue', '@sci-grid/core'],
       output: {
         globals: {
           vue: 'Vue',
-          '@velo-sci/core': 'SciGrid'
+          '@sci-grid/core': 'SciGrid'
         }
       }
     }

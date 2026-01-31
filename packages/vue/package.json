@@ -1,13 +1,13 @@
 {
-  "name": "@velo-sci/vue",
-  "version": "1.0.0",
+  "name": "@sci-grid/vue",
+  "version": "1.0.1",
   "type": "module",
   "main": "./dist/index.js",
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "peerDependencies": {
     "vue": ">=3.0.0",
-    "@velo-sci/core": "workspace:*"
+    "@sci-grid/core": "workspace:*"
   },
   "scripts": {
     "build": "vite build"
