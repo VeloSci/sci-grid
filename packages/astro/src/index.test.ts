@@ -1,5 +1,5 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { SciGrid } from '../sci-grid.js';
+import { describe, it, expect, beforeEach } from 'vitest';
+import { SciGrid } from '@sci-grid/core';
 
 // Behavioral test for Astro integration pattern
 describe('SciGrid Astro Integration Pattern', () => {
