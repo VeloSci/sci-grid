@@ -192,6 +192,12 @@
         <div class="nav-section">
             <div class="nav-title">Features</div>
             <a class="nav-link" href="#columns">Column Types</a>
+            <a class="nav-link" href="#sorting">Column Sorting</a>
+            <a class="nav-link" href="#editing">Cell Editing</a>
+            <a class="nav-link" href="#selection">Selection Modes</a>
+            <a class="nav-link" href="#visuals">Sparklines & Icons</a>
+            <a class="nav-link" href="#headers">Advanced Headers</a>
+            <a class="nav-link" href="#streaming">Real-time Streaming</a>
             <a class="nav-link" href="#theming">Theming</a>
         </div>
 
@@ -258,6 +264,50 @@ const grid = new SciGrid(container, provider);</code></pre>
                 <li><code>progress</code>: Visual percentage bar (0-100).</li>
                 <li><code>select</code>: Dropdown list for fixed options.</li>
             </ul>
+        </section>
+        <section id="sorting">
+            <h1>Column Sorting</h1>
+            <p>Enable sorting by setting <code>isSortable: true</code> on column headers. Handle the <code>onSort</code> event to update your data.</p>
+            <div id="demo-sorting" class="demo-container"></div>
+        </section>
+
+        <section id="editing">
+            <h1>Interactive Editing</h1>
+            <p>SciGrid supports in-place editing for text, numbers, checkboxes, and select dropdowns.</p>
+            <div id="demo-editing" class="demo-container"></div>
+            <p>Double-click a cell to start editing. Custom editors can be implemented by providing a <code>setCellData</code> method in your provider.</p>
+        </section>
+
+        <section id="selection">
+            <h1>Selection Modes</h1>
+            <p>SciGrid supports Excel-like selections: single cell, multiple cells (Ctrl/Shift), entire rows, entire columns, or the whole grid.</p>
+            <div id="demo-selection" class="demo-container"></div>
+            <p>Listen to selection changes using the <code>onSelectionChange</code> callback.</p>
+        </section>
+
+        <section id="visuals">
+            <h1>Sparklines & Icons</h1>
+            <p>Enhance your data presentation with inline sparklines and status icons in the headers.</p>
+            <div id="demo-visuals" class="demo-container"></div>
+            <p>Sparklines are rendered automatically when the column type is <code>sparkline</code> and the data is an array of numbers.</p>
+        </section>
+
+        <section id="headers">
+            <h1>Advanced Headers</h1>
+            <p>Headers can display multiple lines of information, such as units and descriptions, with custom styling for each.</p>
+            <div id="demo-headers" class="demo-container"></div>
+            <pre><code>{
+    headerHeight: 65,
+    headerSubTextCount: 2,
+    headerTitleStyle: { color: '#58a6ff', font: 'bold 12px Inter' },
+    headerUnitsStyle: { color: '#8b949e', font: '10px Inter' }
+}</code></pre>
+        </section>
+
+        <section id="streaming">
+            <h1>Real-time Streaming</h1>
+            <p>SciGrid is optimized for high-frequency updates. Simply update your data provider and call <code>grid.invalidate()</code>.</p>
+            <div id="demo-streaming" class="demo-container"></div>
         </section>
 
         <section id="theming">
