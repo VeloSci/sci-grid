@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { SelectionManager } from '../core/selection-manager.js';
-import type { ViewportState, GridConfig, IDataGridProvider, SelectionMode } from '../types/grid.js';
+import type { ViewportState, GridConfig, IDataGridProvider } from '../types/grid.js';
 
 describe('SelectionManager', () => {
     let state: ViewportState;
