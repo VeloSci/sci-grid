@@ -4,7 +4,7 @@ import { resolve } from 'path'
 export default defineConfig({
   title: 'SciGrid',
   description: 'High-performance data grid for scientific applications',
-  outDir: '../dist',
+  outDir: './dist',
   head: [
     ['link', { rel: 'icon', href: '/favicon.ico' }]
   ],
