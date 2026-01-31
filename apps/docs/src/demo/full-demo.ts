@@ -1,5 +1,5 @@
 
-import { SciGrid } from '@sci-grid/core';
+import { SciGrid } from '@velo-sci/core';
 import { ExcelDataProvider } from './data-provider.js';
 import type { SelectionInfo } from '../types/grid.js';
 

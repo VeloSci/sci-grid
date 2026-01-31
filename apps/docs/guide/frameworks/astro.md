@@ -1,11 +1,11 @@
 # Astro Integration
 
-The `@sci-grid/astro` adapter allows you to easily embed SciGrid in your Astro static or hybrid sites.
+The `@velo-sci/astro` adapter allows you to easily embed SciGrid in your Astro static or hybrid sites.
 
 ## Installation
 
 ```bash
-pnpm add @sci-grid/astro @sci-grid/core
+pnpm add @velo-sci/astro @velo-sci/core
 ```
 
 ## Usage
@@ -14,7 +14,7 @@ Use the component in your `.astro` files. Warning: Since SciGrid is a client-sid
 
 ```astro
 ---
-import SciGrid from '@sci-grid/astro';
+import SciGrid from '@velo-sci/astro';
 
 const gridConfig = {
   rowHeight: 35,

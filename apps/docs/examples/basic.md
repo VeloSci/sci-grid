@@ -3,7 +3,7 @@
 This is a minimal example showing how to setup SciGrid with static data.
 
 ```typescript
-import { SciGrid } from '@sci-grid/core';
+import { SciGrid } from '@velo-sci/core';
 
 const container = document.getElementById('app');
 

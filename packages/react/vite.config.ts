@@ -13,12 +13,12 @@ export default defineConfig({
       formats: ['es', 'cjs']
     },
     rollupOptions: {
-      external: ['react', 'react-dom', '@sci-grid/core'],
+      external: ['react', 'react-dom', '@velo-sci/core'],
       output: {
         globals: {
           react: 'React',
           'react-dom': 'ReactDOM',
-          '@sci-grid/core': 'SciGrid'
+          '@velo-sci/core': 'SciGrid'
         }
       }
     }

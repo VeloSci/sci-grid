@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { SciGridVue } from '@sci-grid/vue';
+import { SciGridVue } from '@velo-sci/vue';
 import { shallowRef } from 'vue';
 
 const headers = [

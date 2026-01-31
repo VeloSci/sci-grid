@@ -1,17 +1,17 @@
 # SolidJS Integration
 
-The `@sci-grid/solid` package provides a fine-grained reactive wrapper for SolidJS.
+The `@velo-sci/solid` package provides a fine-grained reactive wrapper for SolidJS.
 
 ## Installation
 
 ```bash
-pnpm add @sci-grid/solid @sci-grid/core
+pnpm add @velo-sci/solid @velo-sci/core
 ```
 
 ## Usage
 
 ```tsx
-import { SciGridSolid } from '@sci-grid/solid';
+import { SciGridSolid } from '@velo-sci/solid';
 import { createMemo } from 'solid-js';
 
 const App = () => {

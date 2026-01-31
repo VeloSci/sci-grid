@@ -1,5 +1,5 @@
 
-import { SciGrid } from '@sci-grid/core';
+import { SciGrid } from '@velo-sci/core';
 import type { IDataGridProvider, ColumnHeaderInfo, GridConfig } from '../types/grid.js';
 
 // Simple helper for mini providers

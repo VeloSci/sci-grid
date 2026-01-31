@@ -39,12 +39,12 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Build Core
-        run: pnpm --filter @sci-grid/core build
+        run: pnpm --filter @velo-sci/core build
 
       - name: Build Adapters
         run: |
-          pnpm --filter @sci-grid/react build
-          pnpm --filter @sci-grid/vue build
+          pnpm --filter @velo-sci/react build
+          pnpm --filter @velo-sci/vue build
 
       - name: Build Docs
         run: pnpm --filter sci-grid-docs build

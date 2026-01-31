@@ -9,9 +9,9 @@
     "preview": "vitepress preview"
   },
   "devDependencies": {
-    "@sci-grid/core": "workspace:*",
-    "@sci-grid/react": "workspace:*",
-    "@sci-grid/vue": "workspace:*",
+    "@velo-sci/core": "workspace:*",
+    "@velo-sci/react": "workspace:*",
+    "@velo-sci/vue": "workspace:*",
     "@types/node": "^25.1.0",
     "@types/react": "^19.2.10",
     "@types/react-dom": "^19.2.3",

@@ -1,11 +1,11 @@
 # Vue Integration
 
-The `@sci-grid/vue` package offers a Vue 3 component for seamless integration.
+The `@velo-sci/vue` package offers a Vue 3 component for seamless integration.
 
 ## Installation
 
 ```bash
-pnpm add @sci-grid/vue @sci-grid/core
+pnpm add @velo-sci/vue @velo-sci/core
 ```
 
 ## Usage
@@ -14,7 +14,7 @@ Import and use `SciGridVue` in your Vue components.
 
 ```vue
 <script setup lang="ts">
-import { SciGridVue } from '@sci-grid/vue';
+import { SciGridVue } from '@velo-sci/vue';
 import { shallowRef } from 'vue';
 
 const provider = shallowRef({

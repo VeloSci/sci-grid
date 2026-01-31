@@ -1,5 +1,5 @@
 {
-  "name": "@sci-grid/react",
+  "name": "@velo-sci/react",
   "version": "1.0.0",
   "type": "module",
   "main": "./dist/index.js",
@@ -8,7 +8,7 @@
   "peerDependencies": {
     "react": ">=18.0.0",
     "react-dom": ">=18.0.0",
-    "@sci-grid/core": "workspace:*"
+    "@velo-sci/core": "workspace:*"
   },
   "scripts": {
     "build": "vite build"

@@ -1,5 +1,5 @@
 {
-  "name": "@sci-grid/core",
+  "name": "@velo-sci/core",
   "version": "0.2.0",
   "type": "module",
   "main": "./dist/index.js",

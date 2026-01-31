@@ -7,17 +7,17 @@ SciGrid is a high-performance data grid designed for scientific and data-heavy a
 Install the core package using your favorite package manager:
 
 ```bash
-pnpm add @sci-grid/core
+pnpm add @velo-sci/core
 ```
 
 If you are using a framework, you can also install the dedicated adapter:
 
 ```bash
 # For React
-pnpm add @sci-grid/react
+pnpm add @velo-sci/react
 
 # For Vue
-pnpm add @sci-grid/vue
+pnpm add @velo-sci/vue
 ```
 
 ## Basic Usage
@@ -25,7 +25,7 @@ pnpm add @sci-grid/vue
 Here is how you can initialize a basic grid in vanilla JavaScript:
 
 ```typescript
-import { SciGrid } from '@sci-grid/core';
+import { SciGrid } from '@velo-sci/core';
 
 const container = document.getElementById('grid-container');
 const provider = {

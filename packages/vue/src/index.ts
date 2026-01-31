@@ -1,6 +1,6 @@
 import { ref, onMounted, onUnmounted, watch, defineComponent, h, type PropType } from 'vue';
-import { SciGrid } from '@sci-grid/core';
-import type { GridConfig, IDataGridProvider } from '@sci-grid/core';
+import { SciGrid } from '@velo-sci/core';
+import type { GridConfig, IDataGridProvider } from '@velo-sci/core';
 
 /**
  * SciGrid Vue 3 Adapter
