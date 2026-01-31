@@ -1,4 +1,5 @@
 import type { GridConfig, IDataGridProvider, ViewportState, ColumnHeaderInfo } from "../types/grid.js";
+import { formatScientificValue } from "./units.js";
 
 export class GridRenderer {
     private canvas: HTMLCanvasElement;
@@ -490,7 +491,12 @@ export class GridRenderer {
             ctx.fillStyle = textColor;
             ctx.textAlign = type === 'numeric' ? 'right' : 'left';
             ctx.font = config.font;
-            const text = data.toString();
+            
+            let text = data.toString();
+            if (type === 'numeric' && header.units && typeof data === 'number') {
+                text = formatScientificValue(data, header.units);
+            }
+            
             const textX = type === 'numeric' ? x + width - padding : x + padding;
             ctx.fillText(text, textX, y + height / 2);
         }

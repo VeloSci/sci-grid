@@ -39,10 +39,24 @@ export function formatScientificValue(val: number, unit: string = ''): string {
     let bestPrefix = '';
     let bestFactor = 1;
 
-    for (const [prefix, factor] of Object.entries(SI_PREFIXES)) {
+    // Standard engineering prefixes (powers of 1000) are preferred
+    const engineeringPrefixes = ['Y', 'Z', 'E', 'P', 'T', 'G', 'M', 'k', 'm', 'u', 'μ', 'n', 'p', 'f', 'a', 'z', 'y'];
+
+    for (const prefix of engineeringPrefixes) {
+        const factor = SI_PREFIXES[prefix]!;
         if (absVal >= factor && (bestFactor === 1 || factor > bestFactor)) {
             bestPrefix = prefix;
             bestFactor = factor;
+        }
+    }
+
+    // Fallback to other SI prefixes if value is still not well represented (e.g., between 1 and 1000)
+    if (bestFactor === 1) {
+        for (const [prefix, factor] of Object.entries(SI_PREFIXES)) {
+            if (absVal >= factor && (bestFactor === 1 || factor > bestFactor)) {
+                bestPrefix = prefix;
+                bestFactor = factor;
+            }
         }
     }
 

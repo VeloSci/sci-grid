@@ -12,6 +12,7 @@ import StreamingDemo from '../../components/StreamingDemo.vue';
 import VisualsDemo from '../../components/VisualsDemo.vue';
 import NeonLanding from '../../components/NeonLanding.vue';
 import NeonGridDemo from '../../components/NeonGridDemo.vue';
+import ScientificDemo from '../../components/ScientificDemo.vue';
 import './style.css';
 
 const theme: Theme = {
@@ -29,6 +30,7 @@ const theme: Theme = {
     app.component('VisualsDemo', VisualsDemo);
     app.component('NeonLanding', NeonLanding);
     app.component('NeonGridDemo', NeonGridDemo);
+    app.component('ScientificDemo', ScientificDemo);
   }
 };
 

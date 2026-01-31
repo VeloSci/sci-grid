@@ -34,6 +34,7 @@ export default defineConfig({
           items: [
             { text: 'Getting Started', link: '/guide/getting-started' },
             { text: 'Core Concepts', link: '/guide/core-concepts' },
+            { text: 'Scientific Features', link: '/guide/scientific' },
           ]
         },
         {
