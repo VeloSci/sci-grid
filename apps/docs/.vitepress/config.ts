@@ -1,4 +1,5 @@
 import { defineConfig } from 'vitepress'
+import { resolve } from 'path'
 
 export default defineConfig({
   title: 'SciGrid',
@@ -6,6 +7,16 @@ export default defineConfig({
   head: [
     ['link', { rel: 'icon', href: '/favicon.ico' }]
   ],
+  vite: {
+    resolve: {
+      alias: [
+        { find: '@sci-grid/core', replacement: resolve(__dirname, '../../../packages/core/src/index.ts') },
+        { find: '@sci-grid/vue', replacement: resolve(__dirname, '../../../packages/vue/src/index.ts') },
+        { find: '@sci-grid/react', replacement: resolve(__dirname, '../../../packages/react/src/index.tsx') },
+        { find: '@sci-grid/solid', replacement: resolve(__dirname, '../../../packages/solid/src/index.tsx') }
+      ]
+    }
+  },
   themeConfig: {
     nav: [
       { text: 'Home', link: '/' },
