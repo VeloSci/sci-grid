@@ -35,10 +35,24 @@ The `GridConfig` interface controls the appearance and behavior of the grid.
 
 ## Advanced Header Styles
 
-If `headerSubTextCount` is greater than 0, you can style individual header lines:
+## Advanced Header Styles
 
-- `headerTitleStyle`
-- `headerUnitsStyle`
-- `headerDescriptionStyle`
+Enable multi-line headers by setting `headerSubTextCount`.
 
-Each accepts: `{ font?: string; color?: string; alpha?: number }`.
+| Property | Type | Description |
+| :--- | :--- | :--- |
+| `headerSubTextCount` | `0 \| 1 \| 2` | Number of extra lines to show below the title (Units, Description). |
+| `headerPlaceholder` | `string` | Text to show if a sub-field is missing (e.g. "-"). |
+| `headerTitleStyle` | `HeaderLineStyle` | Style for the main column name. |
+| `headerUnitsStyle` | `HeaderLineStyle` | Style for the units line (if count >= 1). |
+| `headerDescriptionStyle` | `HeaderLineStyle` | Style for the description line (if count >= 2). |
+
+### `HeaderLineStyle`
+
+```typescript
+interface HeaderLineStyle {
+    font?: string;   // e.g. "bold 12px Inter"
+    color?: string;  // e.g. "#ff0000"
+    alpha?: number;  // 0.0 to 1.0
+}
+```
