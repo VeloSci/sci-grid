@@ -18,7 +18,14 @@
     "strict": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
-    "noFallthroughCasesInSwitch": true
+    "noFallthroughCasesInSwitch": true,
+    "baseUrl": ".",
+    "paths": {
+      "@sci-grid/core": ["packages/core/src/index.ts"],
+      "@sci-grid/core/*": ["packages/core/src/*"],
+      "@sci-grid/vue": ["packages/vue/src/index.ts"],
+      "@sci-grid/react": ["packages/react/src/index.tsx"]
+    }
   },
   "include": ["packages/*/src", "apps/*/src"],
   "exclude": ["**/node_modules", "**/dist"]
