@@ -42,20 +42,35 @@ export class GridRenderer {
             Math.ceil((scrollY + height) / config.rowHeight)
         );
 
-        // Map column indices to their actual order and positions
-        const colCount = provider.getColumnCount();
+        // Efficiently find visible columns using binary search on offsets
         const visibleCols: { index: number; x: number; width: number }[] = [];
-        let currentX = rowNumWidth - scrollX;
+        const offsets = state.columnOffsets;
+        
+        // Find first column that ends after scrollX
+        let low = 0;
+        let high = offsets.length - 2;
+        let startIndex = 0;
 
-        for (let i = 0; i < colCount; i++) {
+        while (low <= high) {
+            const mid = (low + high) >> 1;
+            if (offsets[mid + 1]! > scrollX) {
+                startIndex = mid;
+                high = mid - 1;
+            } else {
+                low = mid + 1;
+            }
+        }
+
+        for (let i = startIndex; i < provider.getColumnCount(); i++) {
             const actualCol = state.columnOrder[i] ?? i;
             const colWidth = state.columnWidths[actualCol] ?? config.columnWidth;
+            const currentX = rowNumWidth - scrollX + offsets[i]!;
             
-            if (currentX + colWidth > rowNumWidth && currentX < width) {
+            if (currentX < width) {
                 visibleCols.push({ index: actualCol, x: currentX, width: colWidth });
+            } else {
+                break;
             }
-            currentX += colWidth;
-            if (currentX > width) break;
         }
 
         ctx.font = config.font;
@@ -83,10 +98,17 @@ export class GridRenderer {
                 if (isBeingReordered) ctx.globalAlpha = 0.2;
 
                 let isSelected = false;
-                if (selectionMode === 'cell') isSelected = selectedRows.has(r) && selectedCols.has(c);
-                else if (selectionMode === 'row') isSelected = selectedRows.has(r);
-                else if (selectionMode === 'column') isSelected = selectedCols.has(c);
-                else if (selectionMode === 'all') isSelected = true;
+                if (selectionMode === 'all') {
+                    isSelected = true;
+                } else {
+                    for (const range of state.selectionRanges) {
+                        if (r >= range.startRow && r <= range.endRow && 
+                            c >= range.startCol && c <= range.endCol) {
+                            isSelected = true;
+                            break;
+                        }
+                    }
+                }
 
                 if (isSelected) {
                     ctx.fillStyle = config.selectionColor;
@@ -156,13 +178,29 @@ export class GridRenderer {
         ctx.fillStyle = config.headerBackground;
         ctx.fillRect(rowNumOffset, 0, width - rowNumOffset, headerHeight);
 
-        let currentX = rowNumOffset - scrollX;
+        // Efficiently find visible columns using binary search on offsets
+        const offsets = state.columnOffsets;
+        let low = 0;
+        let high = offsets.length - 2;
+        let startIndex = 0;
+
+        while (low <= high) {
+            const mid = (low + high) >> 1;
+            if (offsets[mid + 1]! > scrollX) {
+                startIndex = mid;
+                high = mid - 1;
+            } else {
+                low = mid + 1;
+            }
+        }
+
         const colCount = provider.getColumnCount();
-        for (let i = 0; i < colCount; i++) {
+        for (let i = startIndex; i < colCount; i++) {
             const col = columnOrder[i] ?? i;
             const cWidth = state.columnWidths[col] ?? config.columnWidth;
+            const currentX = rowNumOffset - scrollX + offsets[i]!;
 
-            if (currentX + cWidth > rowNumOffset && currentX < width) {
+            if (currentX < width) {
                 const header = provider.getHeader(col);
                 const isBeingReordered = reorderingCol === i;
                 const isHovered = hoveredCol === col;
@@ -179,8 +217,9 @@ export class GridRenderer {
                 if (isBeingReordered) {
                     ctx.globalAlpha = 1.0;
                 }
+            } else {
+                break;
             }
-            currentX += cWidth;
         }
         ctx.restore();
     }
@@ -404,7 +443,7 @@ export class GridRenderer {
             const barX = x + padding;
 
             // Background
-            ctx.fillStyle = "#e0e0e0";
+            ctx.fillStyle = config.alternateRowColor || "#e0e0e033";
             ctx.fillRect(barX, barY, barWidth, barHeight);
 
             // Fill
@@ -412,22 +451,49 @@ export class GridRenderer {
             ctx.fillRect(barX, barY, barWidth * (val / 100), barHeight);
             
             // Text overlay
-            ctx.fillStyle = "#000";
+            ctx.fillStyle = textColor;
             ctx.font = "10px sans-serif";
             ctx.textAlign = "center";
             ctx.fillText(`${val}%`, x + width / 2, y + height / 2);
             return;
         }
 
+        if (type === 'sparkline' && Array.isArray(data)) {
+            const points = data as number[];
+            if (points.length > 1) {
+                const sw = width - padding * 2;
+                const sh = height * 0.6;
+                const sx = x + padding;
+                const sy = y + (height - sh) / 2;
+
+                const min = Math.min(...points);
+                const max = Math.max(...points);
+                const range = max - min || 1;
+
+                ctx.save();
+                ctx.beginPath();
+                ctx.strokeStyle = "#4facfe";
+                ctx.lineWidth = 1.5;
+                points.forEach((p, i) => {
+                    const px = sx + (i / (points.length - 1)) * sw;
+                    const py = sy + sh - ((p - min) / range) * sh;
+                    if (i === 0) ctx.moveTo(px, py);
+                    else ctx.lineTo(px, py);
+                });
+                ctx.stroke();
+                ctx.restore();
+            }
+            return;
+        }
+
         // Default Text or Select
         if (data !== null && data !== undefined) {
             ctx.fillStyle = textColor;
-            ctx.textAlign = 'left';
-            ctx.font = config.font; // Ensure font is set
-            // Simple truncation
+            ctx.textAlign = type === 'numeric' ? 'right' : 'left';
+            ctx.font = config.font;
             const text = data.toString();
-            // TODO: Better truncation logic
-            ctx.fillText(text, x + padding, y + height / 2);
+            const textX = type === 'numeric' ? x + width - padding : x + padding;
+            ctx.fillText(text, textX, y + height / 2);
         }
 
         if (type === 'select') {
