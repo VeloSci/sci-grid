@@ -1,4 +1,4 @@
-export type GridDataValue = string | number | null | undefined;
+export type GridDataValue = string | number | boolean | null | undefined;
 
 export type ColumnType = 'text' | 'numeric' | 'date' | 'checkbox' | 'select' | 'progress' | 'sparkline';
 
