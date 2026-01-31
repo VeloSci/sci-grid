@@ -42,12 +42,14 @@ const onSort = (col: number, order: 'asc' | 'desc' | null) => {
     // or ideally the wrapper exposes an 'invalidate' method. The current Vue wrapper doesn't expose methods easily.
     // We'll rely on key-changing the component or updating the provider reference.
     provider.value = { ...provider.value }; 
+    updateTrigger.value++;
 };
+const updateTrigger = ref(0);
 </script>
 
 <template>
   <div class="demo-container">
-    <SciGridVue :provider="provider" :config="{ onSort }" :key="data.value[0][0]" />
+    <SciGridVue :provider="provider" :config="{ onSort }" :key="updateTrigger" />
   </div>
 </template>
 

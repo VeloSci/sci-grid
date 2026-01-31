@@ -20,9 +20,7 @@ const provider = shallowRef({
   getHeader: (c) => headers[c]
 });
 
-// Hack to force update since we are mutating data inside reactive array but not replacing provider
-// Ideally use a trigger ref or key
-const updateTrigger = ref(0);
+const gridRef = ref<any>(null);
 
 let interval: any;
 onMounted(() => {
@@ -31,7 +29,10 @@ onMounted(() => {
             row[1] = Math.floor(Math.random() * 100);
             row[2] = Math.floor(Math.random() * 100);
         });
-        updateTrigger.value++; 
+        // Access internal grid instance if exposed, otherwise provoke provider update
+        // With SciGridVue, if we can't access instance easily, we might need a better wrapper.
+        // But assuming we can get the component ref or just update provider shallow ref.
+        provider.value = { ...provider.value }; 
     }, 100);
 });
 
@@ -40,7 +41,7 @@ onUnmounted(() => clearInterval(interval));
 
 <template>
   <div class="demo-container">
-    <SciGridVue :provider="provider" :key="updateTrigger" />
+    <SciGridVue :provider="provider" />
   </div>
 </template>
 
