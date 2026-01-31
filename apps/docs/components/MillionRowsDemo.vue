@@ -20,6 +20,7 @@ const provider = shallowRef({
         ...gridConfig,
         rowHeight: 32, 
         showRowNumbers: true, 
+        rowNumbersWidth: 100,
         columnWidth: 120
       }"
     />
