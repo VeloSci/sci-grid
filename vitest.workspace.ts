@@ -1,4 +1,9 @@
 import { defineWorkspace } from 'vitest/config'
+import { resolve } from 'path'
+
+const coreAlias = {
+  '@velo-sci/core': resolve(__dirname, 'packages/core/src/index.ts')
+}
 
 export default defineWorkspace([
   {
@@ -8,6 +13,7 @@ export default defineWorkspace([
       environment: 'jsdom',
       setupFiles: ['./src/test-setup.ts'],
       include: ['src/**/*.test.ts', 'src/__tests__/**/*.spec.ts'],
+      alias: coreAlias,
     },
   },
   {
@@ -17,6 +23,7 @@ export default defineWorkspace([
       environment: 'jsdom',
       setupFiles: ['./src/test-setup.ts'],
       include: ['src/**/*.test.{ts,tsx}'],
+      alias: coreAlias,
     },
   },
   {
@@ -26,6 +33,7 @@ export default defineWorkspace([
       environment: 'jsdom',
       setupFiles: ['./src/test-setup.ts'],
       include: ['src/**/*.test.ts'],
+      alias: coreAlias,
     },
   },
 ])
