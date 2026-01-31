@@ -34,7 +34,7 @@ importers:
         version: 2.1.9(@types/node@25.1.0)(jsdom@27.4.0(canvas@3.2.1))
 
   apps/docs:
-    dependencies:
+    devDependencies:
       '@sci-grid/core':
         specifier: workspace:*
         version: link:../../packages/core
@@ -44,7 +44,6 @@ importers:
       '@sci-grid/vue':
         specifier: workspace:*
         version: link:../../packages/vue
-    devDependencies:
       '@types/node':
         specifier: ^25.1.0
         version: 25.1.0

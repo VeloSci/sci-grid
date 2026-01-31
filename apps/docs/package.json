@@ -8,12 +8,10 @@
     "build": "vitepress build",
     "preview": "vitepress preview"
   },
-  "dependencies": {
+  "devDependencies": {
     "@sci-grid/core": "workspace:*",
     "@sci-grid/react": "workspace:*",
-    "@sci-grid/vue": "workspace:*"
-  },
-  "devDependencies": {
+    "@sci-grid/vue": "workspace:*",
     "@types/node": "^25.1.0",
     "@types/react": "^19.2.10",
     "@types/react-dom": "^19.2.3",
