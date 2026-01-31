@@ -1,5 +1,4 @@
-import type { GridConfig, IDataGridProvider, ViewportState } from "./types/grid.js";
-export type { GridConfig, IDataGridProvider, ViewportState } from "./types/grid.js";
+import type { GridConfig, IDataGridProvider, ViewportState} from "./types/grid.js";
 import { GridRenderer } from "./core/renderer.js";
 import { Scroller } from "./core/scroller.js";
 import { SelectionManager } from "./core/selection-manager.js";
@@ -9,6 +8,8 @@ import { MouseHandler } from "./core/mouse-handler.js";
 import { DragManager } from "./core/drag-manager.js";
 import { DataManager } from "./core/data-manager.js";
 import * as Coord from "./core/coord-helper.js";
+
+export type { GridConfig, IDataGridProvider, ViewportState, SelectionInfo, SelectionMode, SelectionRange, ColumnHeaderInfo, GridDataValue, ColumnType } from "./types/grid.js";
 
 export class SciGrid {
     private canvas!: HTMLCanvasElement;
