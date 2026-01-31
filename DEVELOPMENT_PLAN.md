@@ -76,5 +76,5 @@ export const SciGridComponent = ({ data, config }) => {
 ---
 
 ## 4. Final Polish
-- [ ] **Accessibility**: Add ARIA roles and keyboard focus management.
-- [ ] **Units Parsing**: Built-in support for parsing scientific units (e.g. "10mA" -> 0.01).
+- [x] **Accessibility**: Add ARIA roles and keyboard focus management.
+- [x] **Units Parsing**: Built-in support for parsing scientific units (e.g. "10mA" -> 0.01).
