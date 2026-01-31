@@ -7,7 +7,7 @@ export default defineWorkspace([
       root: './packages/core',
       environment: 'jsdom',
       setupFiles: ['./src/test-setup.ts'],
-      include: ['src/**/*.test.ts'],
+      include: ['src/**/*.test.ts', 'src/__tests__/**/*.spec.ts'],
     },
   },
   {
