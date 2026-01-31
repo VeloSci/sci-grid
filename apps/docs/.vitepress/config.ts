@@ -3,6 +3,9 @@ import { defineConfig } from 'vitepress'
 export default defineConfig({
   title: 'SciGrid',
   description: 'High-performance data grid for scientific applications',
+  head: [
+    ['link', { rel: 'icon', href: '/favicon.ico' }]
+  ],
   themeConfig: {
     nav: [
       { text: 'Home', link: '/' },
