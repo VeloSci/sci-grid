@@ -1,0 +1,26 @@
+/**
+ * Custom color palette inspired by VeloSci / SciChart Engine
+ * Dark, scientific, and high-performance feel.
+ */
+:root {
+  --vp-c-brand-1: #3b82f6;
+  --vp-c-brand-2: #60a5fa;
+  --vp-c-brand-3: #93c5fd;
+  
+  --vp-home-hero-name-color: transparent;
+  --vp-home-hero-name-background: -webkit-linear-gradient(120deg, #3b82f6 30%, #a855f7);
+}
+
+.dark {
+  --vp-c-bg: #0f172a;
+  --vp-c-bg-alt: #1e293b;
+  --vp-c-bg-soft: #334155;
+}
+
+/* Custom Hero Layout Adjustments */
+.VPHero .name {
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: var(--vp-home-hero-name-color);
+  background-image: var(--vp-home-hero-name-background);
+}

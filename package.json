@@ -5,6 +5,7 @@
   "description": "High-performance data grid for scientific applications (Workspace Root)",
   "scripts": {
     "dev": "pnpm --filter docs dev",
+    "help": "pnpm --filter docs dev",
     "build": "pnpm -r build",
     "test": "vitest",
     "lint": "pnpm -r lint",
