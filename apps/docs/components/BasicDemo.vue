@@ -14,7 +14,17 @@ const provider = shallowRef({
   <div class="demo-container">
     <SciGridVue 
       :provider="provider"
-      :config="{ rowHeight: 35, showRowNumbers: true }"
+      :config="{ 
+        rowHeight: 35, 
+        showRowNumbers: true,
+        backgroundColor: '#0f172a',
+        gridLineColor: '#334155',
+        textColor: '#f8fafc',
+        headerBackground: '#1e293b',
+        headerTextColor: '#93c5fd',
+        rowNumberBackground: '#1e293b',
+        rowNumberTextColor: '#64748b'
+      }"
     />
   </div>
 </template>

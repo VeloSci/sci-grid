@@ -4,14 +4,14 @@ Each grid configuration can be heavily customized to match your application's th
 
 ```typescript
 const config = {
-  backgroundColor: '#000000',
-  gridLineColor: '#003b00',
-  textColor: '#00ff41',
-  headerBackground: '#001a00',
-  headerTextColor: '#00ff41',
-  font: '14px "Courier New", monospace',
-  selectionColor: 'rgba(0, 255, 65, 0.2)',
-  selectedTextColor: '#000'
+  backgroundColor: '#0f172a',      // Slate 900
+  gridLineColor: '#334155',        // Slate 700
+  textColor: '#f8fafc',            // Slate 50
+  headerBackground: '#1e293b',     // Slate 800
+  headerTextColor: '#93c5fd',      // Blue 300
+  font: '13px Inter, sans-serif',
+  selectionColor: 'rgba(59, 130, 246, 0.3)', // Blue 500
+  selectedTextColor: '#ffffff'
 };
 ```
 

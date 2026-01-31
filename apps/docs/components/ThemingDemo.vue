@@ -24,17 +24,18 @@ const provider = shallowRef({
 
 const config = {
   rowHeight: 40,
-  selectionColor: 'rgba(0, 255, 65, 0.2)',
-  selectedTextColor: '#000',
-  backgroundColor: '#000000',
-  gridLineColor: '#003b00',
-  textColor: '#00ff41',
-  headerBackground: '#001a00',
-  headerTextColor: '#00ff41',
-  font: '14px "Courier New", monospace',
+  // VeloSci / Docs Theme (Slate & Blue)
+  backgroundColor: '#0f172a',      // Slate 900
+  gridLineColor: '#334155',        // Slate 700
+  textColor: '#f8fafc',            // Slate 50
+  headerBackground: '#1e293b',     // Slate 800
+  headerTextColor: '#93c5fd',      // Blue 300
+  font: '13px Inter, sans-serif',
+  selectionColor: 'rgba(59, 130, 246, 0.3)', // Blue 500 with opacity
+  selectedTextColor: '#ffffff',
   showRowNumbers: true,
-  rowNumberBackground: '#001a00',
-  rowNumberTextColor: '#008F11'
+  rowNumberBackground: '#1e293b',
+  rowNumberTextColor: '#64748b'    // Slate 500
 };
 </script>
 
