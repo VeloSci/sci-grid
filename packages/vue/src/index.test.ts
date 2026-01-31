@@ -1,7 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { render } from '@testing-library/vue';
 import { SciGridVue } from './index.js';
-import { SciGrid } from '@sci-grid/core';
 
 describe('SciGrid Vue Adapter', () => {
     const mockProvider = {

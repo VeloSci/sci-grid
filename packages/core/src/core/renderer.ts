@@ -27,7 +27,7 @@ export class GridRenderer {
         provider: IDataGridProvider
     ): void {
         const { ctx } = this;
-        const { width, height, scrollX, scrollY, selectedRows, selectedCols, selectionMode, headerHeight } = state;
+        const { width, height, scrollX, scrollY, selectedRows, selectionMode, headerHeight } = state;
 
         // Clear background
         ctx.fillStyle = config.backgroundColor;
@@ -166,7 +166,7 @@ export class GridRenderer {
     }
 
     private renderHeader(state: ViewportState, config: GridConfig, provider: IDataGridProvider, rowNumOffset: number): void {
-        const { width, headerHeight, scrollX, columnOrder, hoveredCol, reorderingCol } = state;
+        const { width, headerHeight, scrollX, columnOrder, reorderingCol } = state;
         const ctx = this.ctx;
 
         ctx.save();
@@ -203,7 +203,6 @@ export class GridRenderer {
             if (currentX < width) {
                 const header = provider.getHeader(col);
                 const isBeingReordered = reorderingCol === i;
-                const isHovered = hoveredCol === col;
 
                 if (isBeingReordered) {
                     ctx.globalAlpha = 0.2;
@@ -212,7 +211,7 @@ export class GridRenderer {
                 ctx.strokeStyle = config.gridLineColor;
                 ctx.strokeRect(currentX, 0, cWidth, headerHeight);
 
-                this.drawHeaderContent(header, currentX, 0, cWidth, headerHeight, config, isHovered);
+                this.drawHeaderContent(header, currentX, 0, cWidth, headerHeight, config);
 
                 if (isBeingReordered) {
                     ctx.globalAlpha = 1.0;
@@ -224,7 +223,7 @@ export class GridRenderer {
         ctx.restore();
     }
 
-    private drawHeaderContent(header: ColumnHeaderInfo, x: number, y: number, width: number, height: number, config: GridConfig, isHovered: boolean): void {
+    private drawHeaderContent(header: ColumnHeaderInfo, x: number, y: number, width: number, height: number, config: GridConfig): void {
         const ctx = this.ctx;
         
         // Dynamic Height Distribution
@@ -327,7 +326,7 @@ export class GridRenderer {
         rowNumOffset: number
     ): void {
         const { ctx } = this;
-        const { width, height, headerHeight, scrollX, scrollY } = state;
+        const { height, headerHeight, scrollX, scrollY } = state;
 
         // 1. Draw Insertion Indicator (Full Height)
         // 1. Draw Insertion Indicator (Full Height)
@@ -374,7 +373,7 @@ export class GridRenderer {
             ctx.strokeStyle = "#4facfe";
             ctx.strokeRect(ghostX, 0, cWidth, headerHeight);
             const header = provider.getHeader(actualCol);
-            this.drawHeaderContent(header, ghostX, 0, cWidth, headerHeight, config, false);
+            this.drawHeaderContent(header, ghostX, 0, cWidth, headerHeight, config);
 
             // Draw Ghost Cells
             const startRow = Math.max(0, Math.floor(scrollY / config.rowHeight));

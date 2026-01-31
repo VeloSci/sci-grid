@@ -41,7 +41,7 @@ export class MouseHandler {
             const row = Math.floor((y - this.state.headerHeight + this.state.scrollY) / this.config.rowHeight);
             if (row >= 0 && row < this.provider.getRowCount()) this.actions.updateSelection('row', row, null, isCtrl, isShift);
         } else {
-            this.handleCellHit(x, y, rowNumWidth, isDoubleClick, isCtrl, isShift, e);
+            this.handleCellHit(x, y, rowNumWidth, isDoubleClick, isCtrl, isShift);
         }
         this.actions.render();
     }
@@ -63,7 +63,7 @@ export class MouseHandler {
         }
     }
 
-    private handleCellHit(x: number, y: number, rnw: number, isDBL: boolean, isCtrl: boolean, isShift: boolean, e: MouseEvent) {
+    private handleCellHit(x: number, y: number, rnw: number, isDBL: boolean, isCtrl: boolean, isShift: boolean) {
         const row = Math.floor((y - this.state.headerHeight + this.state.scrollY) / this.config.rowHeight);
         const relX = x - rnw + this.state.scrollX;
         const idx = Coord.getColumnAt(this.state, relX);

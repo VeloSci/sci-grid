@@ -18,7 +18,7 @@ export function parseScientificValue(val: string): number {
 
     if (!match) return parseFloat(trimmed);
 
-    const [_, numStr, prefix, unit] = match;
+    const [_, numStr, prefix] = match;
     let num = parseFloat(numStr!);
     
     if (prefix && SI_PREFIXES[prefix]) {

@@ -1,5 +1,5 @@
-import type { GridConfig, IDataGridProvider, ViewportState, SelectionMode, ColumnHeaderInfo } from "./types/grid.js";
-export type { GridConfig, IDataGridProvider, ViewportState, SelectionMode, ColumnHeaderInfo } from "./types/grid.js";
+import type { GridConfig, IDataGridProvider, ViewportState } from "./types/grid.js";
+export type { GridConfig, IDataGridProvider, ViewportState } from "./types/grid.js";
 import { GridRenderer } from "./core/renderer.js";
 import { Scroller } from "./core/scroller.js";
 import { SelectionManager } from "./core/selection-manager.js";
@@ -111,7 +111,7 @@ export class SciGrid {
         this.container.addEventListener("mousemove", e => this.handleMouseMove(e));
         window.addEventListener("mousedown", e => { if (this.editors.activeEditor && !this.editors.activeEditor.contains(e.target as Node) && !this.container.contains(e.target as Node)) this.editors.closeEditor(); });
         window.addEventListener("mousemove", e => this.handleWindowMouseMove(e));
-        window.addEventListener("mouseup", e => this.handleWindowMouseUp(e));
+        window.addEventListener("mouseup", () => this.handleWindowMouseUp());
         this.updateVirtualSize(); this.requestAnimationFrame();
     }
 
@@ -157,7 +157,7 @@ export class SciGrid {
         }
     }
 
-    private handleWindowMouseUp(e: MouseEvent) {
+    private handleWindowMouseUp() {
         if (this.isSelecting) {
             this.isSelecting = false;
             this.render();

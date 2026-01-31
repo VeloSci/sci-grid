@@ -1,10 +1,10 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { SciGrid } from './index.js';
-import type { IDataGridProvider, ColumnHeaderInfo } from './types/grid.js';
+import type { IDataGridProvider } from './types/grid.js';
 
 describe('SciGrid Core', () => {
     let container: HTMLElement;
-    let provider: any;
+    let provider: IDataGridProvider;
 
     beforeEach(() => {
         container = document.createElement('div');
@@ -21,7 +21,7 @@ describe('SciGrid Core', () => {
     });
 
     it('should select columns based on mouse events', () => {
-        const grid = new SciGrid(container, provider);
+        new SciGrid(container, provider);
         
         // Mock getBoundingClientRect for position-based events
         container.getBoundingClientRect = vi.fn(() => ({
@@ -68,7 +68,7 @@ describe('SciGrid Core', () => {
 
     it('should handle sorting cycle on header click', () => {
         const onSort = vi.fn();
-        const grid = new SciGrid(container, provider, { onSort });
+        new SciGrid(container, provider, { onSort });
         
         container.getBoundingClientRect = vi.fn(() => ({
             left: 0, top: 0, width: 800, height: 600

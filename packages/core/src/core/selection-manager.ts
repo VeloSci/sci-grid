@@ -1,4 +1,4 @@
-import type { ViewportState, GridConfig, IDataGridProvider, SelectionMode, SelectionRange } from "../types/grid.js";
+import type { ViewportState, GridConfig, IDataGridProvider, SelectionMode } from "../types/grid.js";
 
 export class SelectionManager {
     constructor(
