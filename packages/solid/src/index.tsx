@@ -1,6 +1,6 @@
 import { onMount, onCleanup, createEffect } from 'solid-js';
-import { SciGrid } from '../sci-grid.js';
-import type { GridConfig, IDataGridProvider } from '../types/grid.js';
+import { SciGrid } from '@sci-grid/core';
+import type { GridConfig, IDataGridProvider } from '@sci-grid/core';
 
 interface SciGridSolidProps {
   provider: IDataGridProvider;
@@ -35,8 +35,8 @@ export const SciGridSolid = (props: SciGridSolidProps) => {
 
   return (
     <div 
-      ref={(el: any) => (containerRef = el)} 
-      className={props.class} 
+      ref={containerRef} 
+      class={props.class} 
       style={{ width: '100%', height: '100%', ...props.style } as any} 
     />
   );
