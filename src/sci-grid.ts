@@ -56,6 +56,10 @@ export class SciGrid {
             userSelect: 'none', webkitUserSelect: 'none'
         });
         this.container.tabIndex = 0;
+        this.container.setAttribute('role', 'grid');
+        this.container.setAttribute('aria-label', 'Data Grid');
+        this.updateAriaCounts();
+        
         const wrap = document.createElement("div");
         Object.assign(wrap.style, { position: 'sticky', top: '0', left: '0', width: '100%', height: '100%', zIndex: '10' });
         this.container.appendChild(wrap);
@@ -65,6 +69,11 @@ export class SciGrid {
         this.uiLayer = document.createElement("div");
         Object.assign(this.uiLayer.style, { position: 'absolute', top: '0', left: '0', width: '100%', height: '100%', zIndex: '2', pointerEvents: 'none' });
         wrap.appendChild(this.uiLayer);
+    }
+    
+    private updateAriaCounts() {
+        this.container.setAttribute('aria-rowcount', (this.provider.getRowCount() + 1).toString());
+        this.container.setAttribute('aria-colcount', this.provider.getColumnCount().toString());
     }
 
     private initManagers() {
@@ -176,7 +185,14 @@ export class SciGrid {
     }
     public renderNow() { this.render(); }
     private requestAnimationFrame() { const loop = () => { if (this.isDirty) this.render(); requestAnimationFrame(loop); }; requestAnimationFrame(loop); }
-    public updateProvider(p: IDataGridProvider) { this.provider = p; this.state.columnOrder = []; for (let i = 0; i < p.getColumnCount(); i++) this.state.columnOrder.push(i); this.updateVirtualSize(); this.invalidate(); }
+    public updateProvider(p: IDataGridProvider) { 
+        this.provider = p; 
+        this.state.columnOrder = []; 
+        for (let i = 0; i < p.getColumnCount(); i++) this.state.columnOrder.push(i); 
+        this.updateVirtualSize(); 
+        this.updateAriaCounts();
+        this.invalidate(); 
+    }
     public updateConfig(c: Partial<GridConfig>) { this.config = { ...this.config, ...c }; this.state.headerHeight = this.config.headerHeight; this.editors.closeEditor(); this.scroller.updateScrollStyle(this.config.scrollbarThumbColor, this.config.scrollbarColor); this.updateVirtualSize(); this.invalidate(); }
     private updateScroll(d: any) { if (d.scrollX !== undefined) this.state.scrollX = d.scrollX; if (d.scrollY !== undefined) this.state.scrollY = d.scrollY; this.editors.closeEditor(); this.render(); }
     public destroy() { this.container.innerHTML = ""; }
