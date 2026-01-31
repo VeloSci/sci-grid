@@ -383,8 +383,14 @@ export class GridRenderer {
                 Math.ceil((scrollY + height) / config.rowHeight)
             );
 
-            ctx.fillStyle = "rgba(18, 18, 20, 0.8)";
-            ctx.fillRect(ghostX, headerHeight, cWidth, height - headerHeight);
+            // Limit ghost background to content height
+            const contentHeight = provider.getRowCount() * config.rowHeight;
+            const ghostBodyHeight = Math.min(height - headerHeight, contentHeight - scrollY);
+
+            if (ghostBodyHeight > 0) {
+                ctx.fillStyle = "rgba(18, 18, 20, 0.8)";
+                ctx.fillRect(ghostX, headerHeight, cWidth, ghostBodyHeight);
+            }
 
             for (let r = startRow; r <= endRow; r++) {
                 const y = Math.floor(r * config.rowHeight - scrollY + headerHeight);
