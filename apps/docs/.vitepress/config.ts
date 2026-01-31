@@ -23,6 +23,9 @@ export default defineConfig({
         items: [
           { text: 'React', link: '/guide/frameworks/react' },
           { text: 'Vue', link: '/guide/frameworks/vue' },
+          { text: 'Angular', link: '/guide/frameworks/angular' },
+          { text: 'Solid', link: '/guide/frameworks/solid' },
+          { text: 'Astro', link: '/guide/frameworks/astro' },
         ]
       },
       {
