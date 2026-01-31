@@ -7,7 +7,7 @@ export default defineConfig({
   base: '/sci-grid/',
   outDir: './dist',
   head: [
-    ['link', { rel: 'icon', href: '/favicon.ico' }]
+    ['link', { rel: 'icon', href: '/sci-grid/favicon.ico' }]
   ],
   vite: {
     resolve: {
@@ -26,7 +26,7 @@ export default defineConfig({
       { text: 'API', link: '/api/' },
       { text: 'Examples', link: '/examples/basic' }
     ],
-    logo: '/logo.svg',
+    logo: '/sci-grid/logo.svg',
     sidebar: {
       '/guide/': [
         {
