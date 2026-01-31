@@ -1,0 +1,429 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SciGrid Documentation</title>
+    <style>
+        :root {
+            --bg-color: #0d1117;
+            --sidebar-bg: #161b22;
+            --text-color: #c9d1d9;
+            --accent-color: #58a6ff;
+            --border-color: #30363d;
+            --code-bg: #161b22;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 250px;
+            background-color: var(--sidebar-bg);
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            overflow-y: auto;
+            flex-shrink: 0;
+            height: 100%;
+        }
+
+        .brand {
+            font-size: 20px;
+            font-weight: bold;
+            color: var(--accent-color);
+            margin-bottom: 30px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .nav-section {
+            margin-bottom: 20px;
+        }
+
+        .nav-title {
+            font-size: 12px;
+            text-transform: uppercase;
+            color: #8b949e;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .nav-link {
+            display: block;
+            padding: 8px 12px;
+            color: var(--text-color);
+            text-decoration: none;
+            border-radius: 6px;
+            font-size: 14px;
+            margin-bottom: 2px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .nav-link:hover {
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+
+        .nav-link.active {
+            background-color: rgba(88, 166, 255, 0.1);
+            color: var(--accent-color);
+            font-weight: 500;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            padding: 0 40px 40px 40px;
+            overflow-y: auto;
+            scroll-behavior: smooth;
+        }
+        
+        section {
+            padding-top: 40px;
+            margin-bottom: 60px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 40px;
+        }
+
+        h1 { font-size: 32px; padding-bottom: 10px; margin-bottom: 20px; color: #fff; }
+        h2 { font-size: 24px; margin-top: 20px; margin-bottom: 20px; color: #fff; }
+        h3 { font-size: 18px; margin-top: 30px; margin-bottom: 10px; color: #58a6ff; }
+        p { line-height: 1.6; color: #8b949e; margin-bottom: 15px; }
+
+        code {
+            font-family: 'JetBrains Mono', monospace;
+            background: rgba(110, 118, 129, 0.4);
+            padding: 2px 5px;
+            border-radius: 4px;
+            font-size: 0.9em;
+        }
+
+        pre {
+            background: var(--code-bg);
+            padding: 15px;
+            border-radius: 6px;
+            overflow-x: auto;
+            border: 1px solid var(--border-color);
+            margin: 15px 0;
+        }
+
+        .demo-container {
+            height: 300px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            overflow: hidden;
+            margin: 20px 0;
+            background: #000;
+            position: relative;
+        }
+
+        .full-screen-demo {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            z-index: 2000;
+            background: #000;
+            display: none;
+        }
+
+        .close-full-screen {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            z-index: 2001;
+            padding: 8px 16px;
+            background: #333;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        /* Button */
+        .btn {
+            display: inline-block;
+            background: var(--accent-color);
+            color: #fff;
+            padding: 8px 16px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: 500;
+            margin-top: 20px;
+            cursor: pointer;
+            border: none;
+        }
+    </style>
+</head>
+<body>
+
+    <aside class="sidebar">
+        <div class="brand">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                <line x1="3" y1="9" x2="21" y2="9"></line>
+                <line x1="9" y1="21" x2="9" y2="9"></line>
+            </svg>
+            SciGrid
+        </div>
+
+        <div class="nav-section">
+            <div class="nav-title">Guide</div>
+            <a class="nav-link" href="#overview">Overview</a>
+            <a class="nav-link" href="#install">Installation</a>
+            <a class="nav-link" href="#frameworks">Framework Integration</a>
+            <a class="nav-link" href="#quickstart">Quick Start</a>
+        </div>
+
+        <div class="nav-section">
+            <div class="nav-title">Features</div>
+            <a class="nav-link" href="#columns">Column Types</a>
+            <a class="nav-link" href="#sorting">Column Sorting</a>
+            <a class="nav-link" href="#editing">Cell Editing</a>
+            <a class="nav-link" href="#selection">Selection Modes</a>
+            <a class="nav-link" href="#visuals">Sparklines & Icons</a>
+            <a class="nav-link" href="#headers">Advanced Headers</a>
+            <a class="nav-link" href="#streaming">Real-time Streaming</a>
+            <a class="nav-link" href="#theming">Theming</a>
+        </div>
+
+        <div class="nav-section">
+            <div class="nav-title">Performance</div>
+            <a class="nav-link" href="#bigdata">1 Million Rows</a>
+        </div>
+        
+    </aside>
+
+    <main class="main-content">
+        
+        <section id="overview">
+            <h1>Introduction</h1>
+            <p>SciGrid is a high-performance, canvas-based data grid for web applications. It is designed to handle millions of rows with smooth scrolling (60fps) and low memory footprint.</p>
+            <p>Unlike DOM-based grids, SciGrid uses a virtualization engine and HTML5 Canvas to render only what is visible, enabling it to scale comfortably to large datasets.</p>
+            
+            <h2>Key Features</h2>
+            <ul>
+                <li>🚀 <strong>Performance</strong>: Handle 1M+ rows effortlessly.</li>
+                <li>🖌️ <strong>Rich Types</strong>: Support for Checkboxes, Progress Bars, Dropdowns, and more.</li>
+                <li>🎨 <strong>Theming</strong>: Built-in dark and light modes, fully customizable.</li>
+                <li>⌨️ <strong>Keyboard Support</strong>: Excel-like navigation and editing.</li>
+            </ul>
+        </section>
+
+        <section id="install">
+            <h1>Installation</h1>
+            <p>SciGrid is now distributed as a modular monorepo. You can install the core engine or specific framework adapters.</p>
+            <h3>Core Engine</h3>
+            <pre><code>npm install @sci-grid/core</code></pre>
+            <h3>Framework Adapters</h3>
+            <pre><code>npm install @sci-grid/react
+npm install @sci-grid/vue</code></pre>
+        </section>
+
+        <section id="frameworks">
+            <h1>Framework Integration</h1>
+            
+            <h3>React</h3>
+            <p>Using the premium React adapter is the easiest way to integrate SciGrid into your React apps.</p>
+            <pre><code>import { SciGridReact } from '@sci-grid/react';
+
+function App() {
+  return (
+    &lt;div style={{ height: 500 }}&gt;
+      &lt;SciGridReact 
+        provider={myProvider} 
+        config={{ showRowNumbers: true }} 
+      /&gt;
+    &lt;/div&gt;
+  );
+}</code></pre>
+
+            <h3>Vue</h3>
+            <p>The Vue 3 adapter provides a reactive wrapper around the SciGrid core.</p>
+            <pre><code>&lt;template&gt;
+  &lt;SciGridVue :provider="provider" :config="config" /&gt;
+&lt;/template&gt;
+
+&lt;script setup&gt;
+import { SciGridVue } from '@sci-grid/vue';
+// ... provider and config setup
+&lt;/script&gt;</code></pre>
+        </section>
+
+        <section id="quickstart">
+            <h1>Quick Start</h1>
+            <p>Get up and running with a basic grid in seconds.</p>
+            <div id="demo-quickstart" class="demo-container"></div>
+            <pre><code>import { SciGrid } from 'sci-grid';
+
+const container = document.getElementById('grid');
+const provider = {
+    getRowCount: () => 1000,
+    getColumnCount: () => 5,
+    getCellData: (r, c) => 'Cell ' + r + ':' + c,
+    getHeader: (c) => ({ name: 'Col ' + c })
+};
+
+const grid = new SciGrid(container, provider);</code></pre>
+        </section>
+
+        <section id="columns">
+            <h1>Column Types</h1>
+            <p>SciGrid supports multiple column types to visualize data effectively.</p>
+            
+            <h3>Interactive Demo</h3>
+            <div id="demo-columns" class="demo-container"></div>
+
+            <h3>Supported Types</h3>
+            <ul>
+                <li><code>text</code>: Standard text display (default).</li>
+                <li><code>numeric</code>: Right-aligned numbers.</li>
+                <li><code>checkbox</code>: Interactive boolean toggle.</li>
+                <li><code>progress</code>: Visual percentage bar (0-100).</li>
+                <li><code>select</code>: Dropdown list for fixed options.</li>
+            </ul>
+        </section>
+        <section id="sorting">
+            <h1>Column Sorting</h1>
+            <p>Enable sorting by setting <code>isSortable: true</code> on column headers. Handle the <code>onSort</code> event to update your data.</p>
+            <div id="demo-sorting" class="demo-container"></div>
+        </section>
+
+        <section id="editing">
+            <h1>Interactive Editing</h1>
+            <p>SciGrid supports in-place editing for text, numbers, checkboxes, and select dropdowns.</p>
+            <div id="demo-editing" class="demo-container"></div>
+            <p>Double-click a cell to start editing. Custom editors can be implemented by providing a <code>setCellData</code> method in your provider.</p>
+        </section>
+
+        <section id="selection">
+            <h1>Selection Modes</h1>
+            <p>SciGrid supports Excel-like selections: single cell, multiple cells (Ctrl/Shift), entire rows, entire columns, or the whole grid.</p>
+            <div id="demo-selection" class="demo-container"></div>
+            <p>Listen to selection changes using the <code>onSelectionChange</code> callback.</p>
+        </section>
+
+        <section id="visuals">
+            <h1>Sparklines & Icons</h1>
+            <p>Enhance your data presentation with inline sparklines and status icons in the headers.</p>
+            <div id="demo-visuals" class="demo-container"></div>
+            <p>Sparklines are rendered automatically when the column type is <code>sparkline</code> and the data is an array of numbers.</p>
+        </section>
+
+        <section id="headers">
+            <h1>Advanced Headers</h1>
+            <p>Headers can display multiple lines of information, such as units and descriptions, with custom styling for each.</p>
+            <div id="demo-headers" class="demo-container"></div>
+            <pre><code>{
+    headerHeight: 65,
+    headerSubTextCount: 2,
+    headerTitleStyle: { color: '#58a6ff', font: 'bold 12px Inter' },
+    headerUnitsStyle: { color: '#8b949e', font: '10px Inter' }
+}</code></pre>
+        </section>
+
+        <section id="streaming">
+            <h1>Real-time Streaming</h1>
+            <p>SciGrid is optimized for high-frequency updates. Simply update your data provider and call <code>grid.invalidate()</code>.</p>
+            <div id="demo-streaming" class="demo-container"></div>
+        </section>
+
+        <section id="theming">
+            <h1>Theming</h1>
+            <p>SciGrid is fully themeable. You can customize colors, fonts, and dimensions to match your brand.</p>
+            
+            <h3>Cyberpunk Theme Example</h3>
+            <div id="demo-theming" class="demo-container"></div>
+            
+            <pre><code>// Example Config
+{
+    backgroundColor: '#000000',
+    gridLineColor: '#003b00',
+    textColor: '#00ff41',
+    headerBackground: '#001a00',
+    headerTextColor: '#00ff41',
+    font: '14px "Courier New", monospace'
+}</code></pre>
+        </section>
+
+        <section id="bigdata">
+            <h1>Performance Demo</h1>
+            <p>Experience the raw power of SciGrid with <strong>1,000,000 rows</strong>.</p>
+            <p>This demo uses a <code>Float64Array</code> backend for numbers and a sparse <code>Map</code> for strings, demonstrating efficient memory usage.</p>
+            <button class="btn" id="launch-full-demo">Launch Full Screen Demo</button>
+        </section>
+
+        <div style="height: 100px;"></div> <!-- Spacer -->
+    </main>
+
+    <!-- Full Screen Container -->
+    <div id="full-demo-container" class="full-screen-demo">
+        <button class="close-full-screen" id="close-demo">← Back to Docs</button>
+        <div id="full-demo-root" style="width: 100%; height: 100%;"></div>
+    </div>
+
+    <script type="module">
+        import { runFullDemo } from './src/demo/full-demo.ts';
+        import { initMiniDemos } from './src/demo/mini-demos.ts';
+
+        // Scroll Spy & Navigation
+        const links = document.querySelectorAll('.nav-link');
+        const sections = document.querySelectorAll('section');
+        const mainContent = document.querySelector('.main-content');
+
+        function activateLink(id) {
+            links.forEach(l => {
+                l.classList.toggle('active', l.getAttribute('href') === '#' + id);
+            });
+        }
+
+        mainContent.addEventListener('scroll', () => {
+            let current = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                if (mainContent.scrollTop >= sectionTop - 100) {
+                    current = section.getAttribute('id');
+                }
+            });
+            if (current) activateLink(current);
+        });
+
+        // Initialize Demos
+        initMiniDemos();
+        
+        // Full Demo Handler
+        const fullDemoContainer = document.getElementById('full-demo-container');
+        const fullDemoRoot = document.getElementById('full-demo-root');
+        const closeDemoBtn = document.getElementById('close-demo');
+        const launchBtn = document.getElementById('launch-full-demo');
+
+        if (launchBtn) {
+            launchBtn.addEventListener('click', () => {
+               fullDemoContainer.style.display = 'block';
+               runFullDemo(fullDemoRoot);
+            });
+        }
+
+        closeDemoBtn.addEventListener('click', () => {
+            fullDemoContainer.style.display = 'none';
+            fullDemoRoot.innerHTML = '';
+        });
+
+    </script>
+</body>
+</html>

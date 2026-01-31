@@ -1,49 +1,13 @@
 {
-  "name": "sci-grid",
+  "name": "sci-grid-root",
+  "private": true,
   "version": "0.1.0",
-  "description": "",
-  "main": "./dist/index.cjs",
-  "module": "./dist/index.js",
-  "types": "./dist/index.d.ts",
-  "exports": {
-    ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.js",
-      "require": "./dist/index.cjs"
-    },
-    "./react": {
-      "types": "./dist/react.d.ts",
-      "import": "./dist/react.js",
-      "require": "./dist/react.cjs"
-    },
-    "./vue": {
-      "types": "./dist/vue.d.ts",
-      "import": "./dist/vue.js",
-      "require": "./dist/vue.cjs"
-    },
-    "./solid": {
-      "types": "./dist/solid.d.ts",
-      "import": "./dist/solid.js",
-      "require": "./dist/solid.cjs"
-    },
-    "./angular": {
-      "types": "./dist/angular.d.ts",
-      "import": "./dist/angular.js",
-      "require": "./dist/angular.cjs"
-    },
-    "./astro": "./src/adapters/astro.astro"
-  },
-  "files": [
-    "dist",
-    "src/adapters/astro.astro",
-    "README.md",
-    "LICENSE"
-  ],
+  "description": "High-performance data grid for scientific applications (Workspace Root)",
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
+    "dev": "pnpm --filter docs dev",
+    "build": "pnpm -r build",
     "test": "vitest",
-    "lint": "tsc --noEmit",
+    "lint": "pnpm -r lint",
     "release": "pnpm build && changeset publish",
     "version": "changeset version"
   },
@@ -55,54 +19,20 @@
     "datagrid",
     "canvas",
     "high-performance",
-    "react",
-    "vue",
-    "solidjs",
-    "angular",
-    "astro"
+    "scientific-computing"
   ],
   "author": "SciGrid Contributors",
   "license": "MIT",
   "type": "module",
-  "bugs": {
-    "url": "https://github.com/VeloSci/sci-grid/issues"
-  },
-  "homepage": "https://github.com/VeloSci/sci-grid#readme",
-  "publishConfig": {
-    "access": "public",
-    "registry": "https://registry.npmjs.org/"
-  },
-  "peerDependencies": {
-    "@angular/core": ">=16.0.0",
-    "react": ">=18.0.0",
-    "react-dom": ">=18.0.0",
-    "solid-js": ">=1.0.0",
-    "vue": ">=3.0.0"
-  },
   "devDependencies": {
-    "@angular/common": "^18.0.0",
-    "@angular/core": "^18.0.0",
     "@changesets/changelog-github": "^0.5.2",
     "@changesets/cli": "^2.29.8",
-    "@testing-library/react": "^16.3.2",
-    "@testing-library/vue": "^8.1.0",
     "@types/node": "^25.1.0",
-    "@types/react": "^18.3.1",
-    "@types/react-dom": "^18.3.0",
-    "@vitejs/plugin-react": "^5.1.2",
-    "@vitejs/plugin-vue": "^6.0.3",
-    "astro": "^4.16.0",
-    "canvas": "^3.2.1",
-    "jsdom": "^27.4.0",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1",
-    "solid-js": "^1.9.0",
-    "typescript": "^5.9.3",
-    "vite": "^7.3.1",
-    "vite-plugin-dts": "^4.5.4",
-    "vitest": "^4.0.18",
-    "vitest-canvas-mock": "^1.1.3",
-    "vue": "^3.5.0"
+    "@types/react": "^18.3.27",
+    "@types/react-dom": "^18.3.7",
+    "typescript": "^5.5.0",
+    "vite": "^5.0.0",
+    "vitest": "^2.0.0"
   },
   "pnpm": {
     "onlyBuiltDependencies": [
