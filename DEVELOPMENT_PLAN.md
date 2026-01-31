@@ -26,19 +26,26 @@ To support multiple frameworks, we will implement a "Thin Wrapper" strategy. The
 ## 2. Technical Roadmap
 
 ### Phase 1: Core Engine Hardening (Current & Near-term)
-- [ ] **Advanced Cell Types**: Support for checkboxes, dropdowns, and custom sparklines.
-- [ ] **Viewport Virtualization 2.0**: Optimize `visibleCols` calculation for datasets with 5000+ columns.
-- [ ] **Theming System**: Move from inline config to a full Design System Token approach.
-- [ ] **Persistence Layer**: Built-in state serialization for column order and widths.
+- [x] **Advanced Cell Types**: Support for checkboxes, dropdowns, and custom sparklines.
+- [x] **Viewport Virtualization 2.0**: Optimize `visibleCols` calculation for datasets with 5000+ columns (Binary Search).
+- [x] **Theming System**: Robust configuration-based system with dark/light support.
+- [x] **Persistence Layer**: Built-in state serialization for column order and widths.
 
 ### Phase 2: Interactivity & UX
-- [ ] **Multi-Range Selection**: Allow selecting multiple non-contiguous areas (Ctrl+Drag).
-- [ ] **Keyboard Shortcuts**: Excel-like shortcuts (Ctrl+C/V, Ctrl+Z, Home/End).
-- [ ] **Infinite Loading**: Data Provider hooks for fetching remote chunks as the user scrolls.
+- [x] **Multi-Range Selection**: Allow selecting multiple non-contiguous areas (Foundation implemented).
+- [x] **Keyboard Shortcuts**: Excel-like shortcuts (Arrows, Home/End, Ctrl+Home/End, Ctrl+C).
+- [x] **Infinite Loading**: Data Provider hooks for fetching remote chunks as the user scrolls.
 
 ### Phase 3: Adapter Implementation
-- [ ] **React Adapter**: High-priority. Create a `useSciGrid` hook and `<SciGrid />` component.
-- [ ] **Vue/Solid Adapters**: Leverage their fine-grained reactivity for configuration updates.
+- [x] **Framework Adapters**: Initial support for React, Vue, Solid, Astro, and Angular.
+- [ ] **Adapter Documentation**: Create specific examples for each framework in the docs.
+- [ ] **NPM Packaging**: Setup monorepo for distribution.
+
+### Phase 4: Build & Distribution
+- [x] **Modular Logic**: Refactored core engine into specialized managers (Selection, Input, Editors, etc.) to maintain < 250 lines per file.
+- [ ] **Monorepo Strategy**: Move to a workspace (e.g., PNPM or NX) where `sci-grid/core` is a dependency for `sci-grid/react`, etc.
+- [ ] **Tree-shaking**: Ensure the renderer and logic are completely modular.
+- [ ] **WASM Integration**: Explore moving heavy data processing (sorting/filtering large sets) to a Rust/WASM module.
 
 ---
 
@@ -68,7 +75,6 @@ export const SciGridComponent = ({ data, config }) => {
 
 ---
 
-## 4. Build & Distribution
-- **Monorepo Strategy**: Move to a workspace (e.g., PNPM or NX) where `@scigrid/core` is a dependency for `@scigrid/react`, etc.
-- **Tree-shaking**: Ensure the renderer and logic are completely modular.
-- **WASM Integration**: Explore moving heavy data processing (sorting/filtering large sets) to a Rust/WASM module.
+## 4. Final Polish
+- [ ] **Accessibility**: Add ARIA roles and keyboard focus management.
+- [ ] **Units Parsing**: Built-in support for parsing scientific units (e.g. "10mA" -> 0.01).
