@@ -1,6 +1,6 @@
 import { Component, ElementRef, Input, type OnChanges, type OnDestroy, type OnInit, type SimpleChanges, ViewChild } from '@angular/core';
-import { SciGrid } from '../sci-grid.js';
-import type { GridConfig, IDataGridProvider } from '../types/grid.js';
+import { SciGrid } from '@sci-grid/core';
+import type { GridConfig, IDataGridProvider } from '@sci-grid/core';
 
 /**
  * SciGrid Angular Adapter

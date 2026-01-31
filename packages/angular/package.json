@@ -1,0 +1,25 @@
+{
+  "name": "@sci-grid/angular",
+  "version": "1.0.1",
+  "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "peerDependencies": {
+    "@angular/core": ">=16.0.0",
+    "@angular/common": ">=16.0.0",
+    "@sci-grid/core": "workspace:*"
+  },
+  "devDependencies": {
+    "@angular/core": "^18.0.0",
+    "@angular/common": "^18.0.0",
+    "rxjs": "^7.8.0",
+    "zone.js": "^0.14.0",
+    "typescript": "^5.5.0",
+    "vite": "^5.0.0",
+    "vite-plugin-dts": "^4.0.0"
+  },
+  "scripts": {
+    "build": "vite build"
+  }
+}
