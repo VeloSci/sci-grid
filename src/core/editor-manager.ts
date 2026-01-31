@@ -1,4 +1,5 @@
 import type { ViewportState, GridConfig, IDataGridProvider } from "../types/grid.ts";
+import { parseScientificValue } from "./units.js";
 
 export class EditorManager {
     private editor: HTMLInputElement | HTMLElement | null = null;
@@ -95,7 +96,19 @@ export class EditorManager {
             padding: `${this.config.cellPadding}px`, pointerEvents: 'auto'
         });
 
-        const save = () => { if (this.editor) { this.provider.setCellData!(row, col, input.value); this.closeEditor(); this.helpers.invalidate(); } };
+        const save = () => {
+            if (this.editor) {
+                let value: any = input.value;
+                const header = this.provider.getHeader(col);
+                if (header.type === 'numeric') {
+                    const parsed = parseScientificValue(input.value);
+                    if (!isNaN(parsed)) value = parsed;
+                }
+                this.provider.setCellData!(row, col, value);
+                this.closeEditor();
+                this.helpers.invalidate();
+            }
+        };
         input.onkeydown = (e) => { if (e.key === 'Enter') save(); if (e.key === 'Escape') this.closeEditor(); };
         input.onblur = save;
         this.uiLayer.appendChild(input);
