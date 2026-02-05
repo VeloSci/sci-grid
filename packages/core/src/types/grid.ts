@@ -58,6 +58,7 @@ export interface GridStyle {
     scrollbarColor?: string;
     scrollbarThumbColor?: string;
     dragHandleColor?: string;
+    emptyStateColor?: string;
 }
 
 export interface SelectionRange {
@@ -74,6 +75,13 @@ export interface SelectionInfo {
     anchorCol: number | null;
 }
 
+export interface ContextMenuItem {
+    id?: string;
+    label: string;
+    action: () => void;
+    icon?: string;
+}
+
 export interface GridConfig extends GridStyle {
     rowHeight: number;
     columnWidth: number;
@@ -87,7 +95,9 @@ export interface GridConfig extends GridStyle {
     allowFiltering: boolean;     // Global toggle
     onHeaderContextMenu?: ((col: number, e: MouseEvent) => void) | undefined;
     onSort?: ((col: number, order: 'asc' | 'desc' | null) => void) | undefined;
+    getContextMenuItems?: (defaultItems: (ContextMenuItem | 'divider')[]) => (ContextMenuItem | 'divider')[];
     onSelectionChange?: ((info: SelectionInfo) => void) | undefined;
+    emptyStateText?: string;
     persistenceKey?: string;      // Key to save/load state from localStorage
 }
 
