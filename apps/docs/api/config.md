@@ -19,6 +19,9 @@ The `GridConfig` interface controls the appearance and behavior of the grid.
 | `allowResizing` | `boolean` | `true` | Allow users to resize columns by dragging separators. |
 | `allowFiltering` | `boolean` | `false` | Enable/Disable filtering UI (if available). |
 | `persistenceKey` | `string` | `undefined` | If set, grid state (column width/order) is saved to localStorage. |
+| `maskNumericValues` | `boolean` | `false` | If `true`, values that exceed cell width are shown as `####`. |
+| `maskTextValues` | `boolean` | `false` | If `true`, text that exceeds cell width is replaced by `textMaskString`. |
+| `textMaskString` | `string` | `"..."` | The string used to mask truncated text (e.g. `...`, `***`). |
 
 ## Styling
 

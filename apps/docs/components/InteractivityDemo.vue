@@ -6,6 +6,8 @@ import { useGridTheme } from '../src/composables/useGridTheme';
 
 const { gridConfig } = useGridTheme();
 
+export type Theme = "midnight" | "scientific-dark" | "glass" | "light";
+
 // --- 1. State ---
 const activeTab = ref<'preview' | 'code'>('preview');
 
@@ -17,8 +19,59 @@ const controls = reactive({
   headerSubTextCount: 0 as 0 | 1 | 2,
   includeCustomMenu: false,
   themeColor: '#4facfe',
-  columnCount: 20
+  columnCount: 20,
+  maskNumericValues: false,
+  maskTextValues: false,
+  textMaskString: '...',
+  currentTheme: 'scientific-dark' as Theme
 });
+
+const themeSchemas: Record<Theme, any> = {
+  'scientific-dark': {
+    backgroundColor: '#1e293b', // Lighter slate for better contrast
+    gridLineColor: 'rgba(56, 189, 248, 0.2)',
+    textColor: '#f1f5f9',
+    headerBackground: '#334155',
+    headerTextColor: '#ffffff',
+    rowNumberBackground: '#334155',
+    rowNumberTextColor: '#94a3b8',
+    selectionColor: 'rgba(56, 189, 248, 0.2)',
+    dragHandleColor: '#38bdf8'
+  },
+  midnight: {
+    backgroundColor: '#000000', // Pure black for maximum depth
+    gridLineColor: 'rgba(99, 102, 241, 0.3)',
+    textColor: '#e2e8f0',
+    headerBackground: '#0a0a0a',
+    headerTextColor: 'rgba(255, 255, 255, 0.95)',
+    rowNumberBackground: '#0a0a0a',
+    rowNumberTextColor: '#64748b',
+    selectionColor: 'rgba(99, 102, 241, 0.3)',
+    dragHandleColor: '#6366f1'
+  },
+  glass: {
+    backgroundColor: 'rgba(15, 23, 42, 0.3)',
+    gridLineColor: 'rgba(45, 212, 191, 0.5)',
+    textColor: '#ffffff',
+    headerBackground: 'rgba(255, 255, 255, 0.05)',
+    headerTextColor: '#ffffff',
+    rowNumberBackground: 'rgba(255, 255, 255, 0.05)',
+    rowNumberTextColor: '#cbd5e1',
+    selectionColor: 'rgba(45, 212, 191, 0.3)',
+    dragHandleColor: '#2dd4bf'
+  },
+  light: {
+    backgroundColor: '#f1f5f9',
+    gridLineColor: 'rgba(30, 41, 59, 0.15)',
+    textColor: '#0f172a',
+    headerBackground: '#ffffff',
+    headerTextColor: '#0f172a',
+    rowNumberBackground: '#ffffff',
+    rowNumberTextColor: '#334155',
+    selectionColor: 'rgba(37, 99, 235, 0.3)',
+    dragHandleColor: '#2563eb'
+  }
+};
 
 // --- 2. Data Provider ---
 const rowCount = 1000;
@@ -37,7 +90,7 @@ const provider = computed(() => {
     getHeader: (c: number) => {
       const base = {
         name: c === 0 ? 'ID' : c === 1 ? 'Name' : c === 2 ? 'Age' : `Metric ${c}`,
-        type: (c === 2 ? 'numeric' : 'text') as 'numeric' | 'text',
+        type: (c >= 2 ? 'numeric' : 'text') as 'numeric' | 'text',
         isResizable: true
       };
       
@@ -54,14 +107,19 @@ const provider = computed(() => {
 
 // --- 3. Dynamic Config ---
 const computedConfig = computed<Partial<GridConfig>>(() => {
+  const activeTheme = themeSchemas[controls.currentTheme];
   const base: Partial<GridConfig> = {
     ...gridConfig.value,
+    ...activeTheme,
     rowHeight: controls.rowHeight,
     showRowNumbers: controls.showRowNumbers,
     allowResizing: controls.allowResizing,
     headerSubTextCount: controls.headerSubTextCount,
-    selectionColor: `${controls.themeColor}4D`, // 30% alpha
-    dragHandleColor: controls.themeColor,
+    selectionColor: `${activeTheme.selectionColor}`, // use aligned theme color
+    dragHandleColor: activeTheme.dragHandleColor || controls.themeColor,
+    maskNumericValues: controls.maskNumericValues,
+    maskTextValues: controls.maskTextValues,
+    textMaskString: controls.textMaskString,
   };
 
   if (controls.includeCustomMenu) {
@@ -114,7 +172,10 @@ const generatedCode = computed(() => {
   allowResizing: ${controls.allowResizing},
   headerSubTextCount: ${controls.headerSubTextCount},
   selectionColor: '${controls.themeColor}4D',
-  dragHandleColor: '${controls.themeColor}',${menuCode}
+  dragHandleColor: '${controls.themeColor}',
+  maskNumericValues: ${controls.maskNumericValues},
+  maskTextValues: ${controls.maskTextValues},
+  textMaskString: '${controls.textMaskString}',${menuCode}
 });`;
 });
 
@@ -152,12 +213,33 @@ function copyCode() {
             <span class="val">{{ controls.rowHeight }}</span>
           </label>
           <label>
-            <span>Theme Color</span>
+            <span>Theme Preset</span>
+            <select v-model="controls.currentTheme">
+              <option value="scientific-dark">Scientific Dark</option>
+              <option value="midnight">Midnight Depth</option>
+              <option value="glass">Glassmorphism</option>
+              <option value="light">Clean Light</option>
+            </select>
+          </label>
+          <label v-if="controls.currentTheme === 'scientific-dark'">
+            <span>Custom Accent Color</span>
             <input type="color" v-model="controls.themeColor" />
           </label>
           <label class="checkbox">
             <input type="checkbox" v-model="controls.showRowNumbers" />
             <span>Show Row Numbers</span>
+          </label>
+          <label class="checkbox">
+            <input type="checkbox" v-model="controls.maskNumericValues" />
+            <span>Mask Numbers (####)</span>
+          </label>
+          <label class="checkbox">
+            <input type="checkbox" v-model="controls.maskTextValues" />
+            <span>Mask Text</span>
+          </label>
+          <label v-if="controls.maskTextValues">
+            <span>Text Mask String</span>
+            <input type="text" v-model="controls.textMaskString" maxlength="10" />
           </label>
         </div>
 
@@ -267,11 +349,11 @@ function copyCode() {
   width: 250px;
   background-color: var(--vp-c-bg-soft);
   border-right: 1px solid var(--vp-c-divider);
-  padding: 1rem;
+  padding: .5rem;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: .5rem;
   flex-shrink: 0;
 }
 
@@ -279,7 +361,7 @@ function copyCode() {
   font-size: 0.85rem;
   text-transform: uppercase;
   color: var(--vp-c-text-2);
-  margin-bottom: 0.75rem;
+  margin-bottom: 0.2rem;
   font-weight: 700;
   letter-spacing: 0.5px;
 }

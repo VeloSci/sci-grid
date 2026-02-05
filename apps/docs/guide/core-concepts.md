@@ -35,3 +35,4 @@ SciGrid comes with desktop-class interactivity built-in:
 - **Auto-Resizing**: Double-click headers to fit content.
 - **Data Export**: Copy-paste compatibility and CSV export.
 - **Keyboard Navigation**: Excel-like shortcuts for power users.
+- **Content Masking**: Automatically mask truncated numeric values (`####`) or text (`...`) to maintain data integrity when columns are narrow.
