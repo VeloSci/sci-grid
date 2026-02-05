@@ -39,6 +39,12 @@
   --sci-border: #1e293b;
   --sci-code-bg: #0a0f1c;
   --grid-color: rgba(0, 242, 255, 0.05);
+  /* Tailwind/SciAnalyzer Compatibility Vars */
+  --scientific-dark: #0f172a;
+  --scientific-panel: #1e293b;
+  --accent: #38bdf8;
+  --text-main: rgba(255, 255, 255, 0.95);
+  --glass-border: rgba(255, 255, 255, 0.15);
   --vp-c-bg: var(--sci-surface-1);
 }
 
