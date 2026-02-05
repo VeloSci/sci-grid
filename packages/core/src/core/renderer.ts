@@ -8,7 +8,7 @@ export class GridRenderer {
 
     constructor(canvas: HTMLCanvasElement) {
         this.canvas = canvas;
-        const ctx = canvas.getContext("2d", { alpha: false });
+        const ctx = canvas.getContext("2d", { alpha: true });
         if (!ctx) throw new Error("Could not get 2d context");
         this.ctx = ctx;
         this.dpr = window.devicePixelRatio || 1;
@@ -31,6 +31,7 @@ export class GridRenderer {
         const { width, height, scrollX, scrollY, selectedRows, selectionMode, headerHeight } = state;
 
         // Clear background
+        ctx.clearRect(0, 0, width, height);
         ctx.fillStyle = config.backgroundColor;
         ctx.fillRect(0, 0, width, height);
 
@@ -151,6 +152,11 @@ export class GridRenderer {
 
         // 2. Draw Fixed Row Numbers
         if (config.showRowNumbers) {
+            ctx.save();
+            ctx.beginPath();
+            ctx.rect(0, headerHeight, rowNumWidth, height - headerHeight);
+            ctx.clip();
+
             ctx.fillStyle = config.rowNumberBackground;
             ctx.fillRect(0, headerHeight, rowNumWidth, height);
 
@@ -169,6 +175,7 @@ export class GridRenderer {
                 ctx.fillStyle = config.rowNumberTextColor;
                 ctx.fillText((r + 1).toString(), config.cellPadding, y + config.rowHeight / 2);
             }
+            ctx.restore();
         }
 
         // 3. Draw Fixed Header
@@ -443,6 +450,11 @@ export class GridRenderer {
         const padding = config.cellPadding;
         const textColor = isSelected ? config.selectedTextColor : config.textColor;
 
+        ctx.save();
+        ctx.beginPath();
+        ctx.rect(x, y, width, height);
+        ctx.clip();
+
         if (type === 'checkbox') {
             const boxSize = 14;
             const bx = x + (width - boxSize) / 2;
@@ -523,6 +535,20 @@ export class GridRenderer {
                 text = formatScientificValue(data, header.units);
             }
             
+            if (type === 'numeric' && config.maskNumericValues) {
+                const textWidth = ctx.measureText(text).width;
+                const availableWidth = width - (padding * 2);
+                if (textWidth > availableWidth) {
+                    text = "####";
+                }
+            } else if (config.maskTextValues && type !== 'numeric') {
+                const textWidth = ctx.measureText(text).width;
+                const availableWidth = width - (padding * 2);
+                if (textWidth > availableWidth) {
+                    text = config.textMaskString || "...";
+                }
+            }
+            
             const textX = type === 'numeric' ? x + width - padding : x + padding;
             ctx.fillText(text, textX, y + height / 2);
         }
@@ -540,5 +566,7 @@ export class GridRenderer {
              ctx.fill();
              ctx.globalAlpha = 1.0;
         }
+
+        ctx.restore();
     }
 }

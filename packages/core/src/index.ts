@@ -46,7 +46,8 @@ export class SciGrid {
             headerBackground: "#f3f3f3", headerTextColor: "#333333", headerFont: "bold 12px Inter, sans-serif",
             rowNumberBackground: "#f9f9f9", rowNumberTextColor: "#666666",
             selectionColor: "rgba(0, 120, 215, 0.3)", selectedTextColor: "#000000", cellPadding: 5,
-            emptyStateText: "No data available", emptyStateColor: "#999999", ...config,
+            emptyStateText: "No data available", emptyStateColor: "#999999", 
+            maskNumericValues: false, maskTextValues: false, textMaskString: "...", ...config,
         };
         this.state.headerHeight = this.config.headerHeight;
         this.initDOM();

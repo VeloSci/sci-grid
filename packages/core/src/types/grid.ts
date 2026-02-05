@@ -99,6 +99,9 @@ export interface GridConfig extends GridStyle {
     onSelectionChange?: ((info: SelectionInfo) => void) | undefined;
     emptyStateText?: string;
     persistenceKey?: string;      // Key to save/load state from localStorage
+    maskNumericValues?: boolean;  // If true, show #### when number doesn't fit
+    maskTextValues?: boolean;     // If true, apply a mask when text doesn't fit
+    textMaskString?: string;      // The string to use for text masking (default "...")
 }
 
 export type SelectionMode = 'cell' | 'row' | 'column' | 'all';
