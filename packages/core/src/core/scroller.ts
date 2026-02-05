@@ -47,23 +47,22 @@ export class Scroller {
         style.innerHTML = `
             .${this.styleId} {
                 scrollbar-width: thin;
-                scrollbar-color: rgba(155, 155, 155, 0.5) transparent;
+                scrollbar-color: rgba(79, 172, 254, 0.4) transparent;
             }
             .${this.styleId}::-webkit-scrollbar {
-                width: 10px;
-                height: 10px;
+                width: 8px;
+                height: 8px;
             }
             .${this.styleId}::-webkit-scrollbar-track {
                 background: transparent;
             }
             .${this.styleId}::-webkit-scrollbar-thumb {
-                background-color: rgba(155, 155, 155, 0.5);
-                border-radius: 6px;
-                border: 2px solid transparent;
-                background-clip: content-box;
+                background-color: rgba(79, 172, 254, 0.4);
+                border-radius: 10px;
+                transition: background-color 0.2s;
             }
             .${this.styleId}::-webkit-scrollbar-thumb:hover {
-                background-color: rgba(155, 155, 155, 0.8);
+                background-color: rgba(79, 172, 254, 0.7);
             }
             .${this.styleId}::-webkit-scrollbar-corner {
                 background: transparent;
