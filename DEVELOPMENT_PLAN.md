@@ -35,9 +35,13 @@ To support multiple frameworks, we will implement a "Thin Wrapper" strategy. The
 - [x] **Multi-Range Selection**: Allow selecting multiple non-contiguous areas (Foundation implemented).
 - [x] **Keyboard Shortcuts**: Excel-like shortcuts (Arrows, Home/End, Ctrl+Home/End, Ctrl+C).
 - [x] **Infinite Loading**: Data Provider hooks for fetching remote chunks as the user scrolls.
+- [x] **Context Menu**: Native-style context menu with Copy, Export CSV, and Refresh options.
+- [x] **Column Auto-Sizing**: Double-click column headers to automatically fit content width.
+- [x] **CSV Export**: Built-in data export capabilities.
 
 ### Phase 3: Adapter Implementation
 - [x] **Framework Adapters**: Initial support for React, Vue, Solid, Astro, and Angular.
+- [x] **Empty State**: Visual feedback when the grid has no data.
 - [ ] **Adapter Documentation**: Create specific examples for each framework in the docs.
 - [ ] **NPM Packaging**: Setup monorepo for distribution.
 
