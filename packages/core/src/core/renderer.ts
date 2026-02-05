@@ -37,9 +37,29 @@ export class GridRenderer {
         const rowNumWidth = config.showRowNumbers ? config.rowNumbersWidth : 0;
 
         // Calculate visible range
+        const rowCount = provider.getRowCount();
+        if (rowCount === 0) {
+            ctx.fillStyle = config.emptyStateColor || "#999999";
+            ctx.textAlign = "center";
+            ctx.font = config.font;
+            ctx.fillText(config.emptyStateText || "No data available", width / 2, height / 2);
+            
+            // Draw Fixed Header
+            this.renderHeader(state, config, provider, rowNumWidth);
+            
+            // Draw Top-Left Corner
+            if (config.showRowNumbers) {
+                ctx.fillStyle = config.headerBackground;
+                ctx.fillRect(0, 0, rowNumWidth, headerHeight);
+                ctx.strokeStyle = config.gridLineColor;
+                ctx.strokeRect(0, 0, rowNumWidth, headerHeight);
+            }
+            return;
+        }
+
         const startRow = Math.max(0, Math.floor(scrollY / config.rowHeight));
         const endRow = Math.min(
-            provider.getRowCount() - 1,
+            rowCount - 1,
             Math.ceil((scrollY + height) / config.rowHeight)
         );
 
