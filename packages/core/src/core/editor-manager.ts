@@ -46,7 +46,10 @@ export class EditorManager {
             width: `${this.helpers.getColumnWidth(col)}px`, height: `${editH}px`,
             boxSizing: 'border-box', border: '2px solid #4facfe', outline: 'none',
             zIndex: '100', pointerEvents: 'auto', backgroundColor: this.config.headerBackground,
-            padding: `0 ${this.config.cellPadding}px`
+            color: this.config.headerTextColor, font: this.config.headerFont,
+            padding: `0 ${this.config.cellPadding}px`,
+            boxShadow: '0 2px 10px rgba(0,0,0,0.2)',
+            borderRadius: '2px'
         });
 
         const save = () => {
@@ -93,7 +96,10 @@ export class EditorManager {
             position: 'absolute', left: `${x}px`, top: `${y}px`, zIndex: '10',
             width: `${this.helpers.getColumnWidth(col)}px`, height: `${this.config.rowHeight}px`,
             boxSizing: 'border-box', border: '2px solid #4facfe', outline: 'none',
-            padding: `${this.config.cellPadding}px`, pointerEvents: 'auto'
+            padding: `${this.config.cellPadding}px`, pointerEvents: 'auto',
+            backgroundColor: this.config.backgroundColor, color: this.config.textColor,
+            font: this.config.font, boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
+            borderRadius: '2px'
         });
 
         const save = () => {
@@ -130,8 +136,9 @@ export class EditorManager {
         const list = document.createElement("ul");
         Object.assign(list.style, {
             position: 'absolute', top: '100%', left: '0', width: '100%', maxHeight: '200px',
-            overflowY: 'auto', margin: '0', padding: '0', listStyle: 'none',
-            backgroundColor: this.config.headerBackground, border: `1px solid ${this.config.gridLineColor}`
+            overflowY: 'auto', margin: '4px 0 0 0', padding: '4px 0', listStyle: 'none',
+            backgroundColor: this.config.headerBackground, border: `1px solid ${this.config.gridLineColor}`,
+            boxShadow: '0 4px 12px rgba(0,0,0,0.3)', borderRadius: '4px', zIndex: '1001'
         });
         
         (this.provider.getHeader(col).selectOptions || []).forEach(opt => {
