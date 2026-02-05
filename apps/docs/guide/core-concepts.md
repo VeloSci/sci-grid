@@ -27,3 +27,11 @@ interface IDataGridProvider {
 ```
 
 This "pull" model means you can connect SciGrid directly to your state management store, a WebWorker, or even stream data lazily, without duplicating it into the grid's internal memory.
+
+## Interactivity
+
+SciGrid comes with desktop-class interactivity built-in:
+- **Context Menus**: Native-feeling menus for quick actions.
+- **Auto-Resizing**: Double-click headers to fit content.
+- **Data Export**: Copy-paste compatibility and CSV export.
+- **Keyboard Navigation**: Excel-like shortcuts for power users.
