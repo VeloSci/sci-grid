@@ -84,12 +84,12 @@ describe('DataManager', () => {
         expect(loaded.columnOrder).toEqual([1, 0, 2]);
     });
 
-    it('should copy selected range as CSV/TSV to clipboard', () => {
+    it('should copy selected range as CSV/TSV to clipboard', async () => {
         state.selectionRanges = [{ startRow: 0, endRow: 1, startCol: 0, endCol: 1 }];
         // Cells: 0-0, 0-1
         //        1-0, 1-1
         
-        manager.copyToClipboard();
+        await manager.copyToClipboard();
         
         expect(clipboardMock.writeText).toHaveBeenCalledTimes(1);
         const text = clipboardMock.writeText.mock.calls[0][0];
@@ -102,7 +102,7 @@ describe('DataManager', () => {
         expect(rows[1]).toContain('"1-0"');
     });
 
-    it('should ignore non-selected cells in generating copy text logic', () => {
+    it('should ignore non-selected cells in generating copy text logic', async () => {
         // Range covers 0,0 to 0,2. But let's say we have complex logic logic or just check general bounds
         // The implementation iterates minR to maxR and minC to maxC and checks if cell is in ANY range.
         
@@ -112,7 +112,7 @@ describe('DataManager', () => {
         ];
         
         // 0,1 is NOT selected. Should be empty string in output?
-        manager.copyToClipboard();
+        await manager.copyToClipboard();
         const text = clipboardMock.writeText.mock.calls[0][0];
         const parts = text.trim().split('\t');
         
