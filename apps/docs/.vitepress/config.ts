@@ -84,6 +84,7 @@ export default defineConfig({
             { text: 'Editing', link: '/examples/editing' },
             { text: 'Advanced Headers', link: '/examples/headers' },
             { text: 'Selection Modes', link: '/examples/selection' },
+            { text: 'Interactivity & UX', link: '/examples/interactivity' },
           ]
         },
         {
