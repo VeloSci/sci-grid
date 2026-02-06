@@ -143,19 +143,21 @@ export class MouseHandler {
     }
 
     public getHeaderHit(x: number, y: number) {
-        let curX = 0; const h = this.state.headerHeight;
-        const { titleH, subH } = this.getHeaderHeights(h);
-        for (let i = 0; i < this.state.columnOrder.length; i++) {
-            const w = Coord.getColumnWidth(this.state, this.config, this.state.columnOrder[i]!);
-            if (x >= curX && x <= curX + w) {
-                if (x >= curX + w - 5) return { type: 'edge' as const, colIndex: i };
-                if (i > 0 && x <= curX + 5) return { type: 'edge' as const, colIndex: i - 1 };
-                let sub = 0; if (y > titleH) sub = y < titleH + subH ? 1 : 2;
-                return { type: 'handle' as const, colIndex: i, subIndex: sub };
-            }
-            curX += w;
-        }
-        return { type: 'handle' as const, colIndex: -1 };
+        const { titleH, subH } = this.getHeaderHeights(this.state.headerHeight);
+        
+        // Use binary search to find values O(log N) instead of O(N)
+        const colIndex = Coord.getColumnAt(this.state, x);
+        if (colIndex === -1) return { type: 'handle' as const, colIndex: -1 };
+
+        const start = this.state.columnOffsets[colIndex]!;
+        const end = this.state.columnOffsets[colIndex + 1]!;
+        
+        // Edge detection (resize handles)
+        if (x >= end - 5) return { type: 'edge' as const, colIndex: colIndex };
+        if (x <= start + 5 && colIndex > 0) return { type: 'edge' as const, colIndex: colIndex - 1 };
+
+        let sub = 0; if (y > titleH) sub = y < titleH + subH ? 1 : 2;
+        return { type: 'handle' as const, colIndex: colIndex, subIndex: sub };
     }
 
     private getHeaderHeights(h: number) {

@@ -536,27 +536,31 @@ export class GridRenderer {
                 text = formatScientificValue(data, header.units);
             }
             
-            if (type === 'numeric' && config.maskNumericValues) {
-                const textWidth = ctx.measureText(text).width;
-                const availableWidth = width - (padding * 2);
-                if (textWidth > availableWidth) {
-                    text = "####";
-                }
-            } else if (config.maskTextValues && type !== 'numeric') {
-                const textWidth = ctx.measureText(text).width;
-                const availableWidth = width - (padding * 2);
-                if (textWidth > availableWidth) {
-                    text = config.textMaskString || "...";
-                }
+            const measuredWidth = ctx.measureText(text).width;
+            const availableWidth = width - (padding * 2);
+
+            // 1. Optional Masking
+            if (type === 'numeric' && config.maskNumericValues && measuredWidth > availableWidth) {
+                text = "####";
+            } else if (config.maskTextValues && type !== 'numeric' && measuredWidth > availableWidth) {
+                text = config.textMaskString || "...";
             }
-            
-            let textX = x + padding;
-            if (alignment === 'right') {
-                textX = x + width - padding;
-            } else if (alignment === 'center') {
-                textX = x + width / 2;
+
+            // 2. Alignment Logic
+            // If text is too long for the cell, always align LEFT to show the start of the value
+            if (measuredWidth > availableWidth) {
+                ctx.textAlign = 'left';
+                ctx.fillText(text, x + padding, y + height / 2);
+            } else {
+                ctx.textAlign = alignment;
+                let textX = x + padding;
+                if (alignment === 'right') {
+                    textX = x + width - padding;
+                } else if (alignment === 'center') {
+                    textX = x + width / 2;
+                }
+                ctx.fillText(text, textX, y + height / 2);
             }
-            ctx.fillText(text, textX, y + height / 2);
         }
 
         if (type === 'select') {
