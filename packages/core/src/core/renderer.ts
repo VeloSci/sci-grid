@@ -527,7 +527,8 @@ export class GridRenderer {
         // Default Text or Select
         if (data !== null && data !== undefined) {
             ctx.fillStyle = textColor;
-            ctx.textAlign = type === 'numeric' ? 'right' : 'left';
+            const alignment = header.align || (type === 'numeric' ? 'right' : 'left');
+            ctx.textAlign = alignment;
             ctx.font = config.font;
             
             let text = data.toString();
@@ -549,7 +550,12 @@ export class GridRenderer {
                 }
             }
             
-            const textX = type === 'numeric' ? x + width - padding : x + padding;
+            let textX = x + padding;
+            if (alignment === 'right') {
+                textX = x + width - padding;
+            } else if (alignment === 'center') {
+                textX = x + width / 2;
+            }
             ctx.fillText(text, textX, y + height / 2);
         }
 

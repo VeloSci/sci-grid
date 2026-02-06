@@ -13,6 +13,7 @@ export interface ColumnHeaderInfo {
     isSortable?: boolean;
     sortOrder?: 'asc' | 'desc' | null;
     markIcon?: string; // Character, Emoji or Symbol to show in top-right
+    align?: 'left' | 'right' | 'center';
 }
 
 export interface IDataGridProvider {
