@@ -94,6 +94,7 @@ export interface GridConfig extends GridStyle {
     allowResizing: boolean;      // Global toggle
     allowFiltering: boolean;     // Global toggle
     onHeaderContextMenu?: ((col: number, e: MouseEvent) => void) | undefined;
+    onContextMenu?: ((row: number, col: number, e: MouseEvent) => void) | undefined;
     onSort?: ((col: number, order: 'asc' | 'desc' | null) => void) | undefined;
     getContextMenuItems?: (defaultItems: (ContextMenuItem | 'divider')[]) => (ContextMenuItem | 'divider')[];
     onSelectionChange?: ((info: SelectionInfo) => void) | undefined;

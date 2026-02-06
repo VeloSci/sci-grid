@@ -9,6 +9,7 @@ interface SciGridReactProps {
   style?: CSSProperties;
   onSort?: (col: number, order: 'asc' | 'desc' | null) => void;
   onSelectionChange?: (info: any) => void;
+  onContextMenu?: (row: number, col: number, e: MouseEvent) => void;
 }
 
 /**
@@ -21,7 +22,8 @@ export const SciGridReact = ({
   className, 
   style, 
   onSort,
-  onSelectionChange 
+  onSelectionChange,
+  onContextMenu
 }: SciGridReactProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const gridRef = useRef<SciGrid | null>(null);
@@ -31,7 +33,8 @@ export const SciGridReact = ({
       gridRef.current = new SciGrid(containerRef.current, provider, {
         ...config,
         onSort,
-        onSelectionChange
+        onSelectionChange,
+        onContextMenu
       });
     }
     return () => {
@@ -53,10 +56,11 @@ export const SciGridReact = ({
       gridRef.current.updateConfig({
         ...config,
         onSort,
-        onSelectionChange
+        onSelectionChange,
+        onContextMenu
       });
     }
-  }, [config, onSort, onSelectionChange]);
+  }, [config, onSort, onSelectionChange, onContextMenu]);
 
   return (
     <div 

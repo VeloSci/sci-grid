@@ -14,6 +14,7 @@ export class ContextMenuManager {
             copyToClipboard: () => void;
             exportToCsv: () => void;
             invalidate: () => void;
+            resolveCoords: (e: MouseEvent) => { row: number; col: number } | null;
         }
     ) {
         this.container.addEventListener('contextmenu', (e) => this.handleContextMenu(e));
@@ -25,6 +26,13 @@ export class ContextMenuManager {
     }
 
     private handleContextMenu(e: MouseEvent) {
+        const coords = this.actions.resolveCoords(e);
+        
+        if (this.config.onContextMenu && coords) {
+            this.config.onContextMenu(coords.row, coords.col, e);
+            if (e.defaultPrevented) return;
+        }
+
         e.preventDefault();
         this.closeMenu();
 
@@ -37,10 +45,12 @@ export class ContextMenuManager {
 
         let items: MenuEntry[] = defaultItems;
         if (this.config.getContextMenuItems) {
-             items = this.config.getContextMenuItems(defaultItems);
+            items = this.config.getContextMenuItems(defaultItems);
         }
 
-        this.renderMenu(e.clientX, e.clientY, items);
+        if (items.length > 0) {
+            this.renderMenu(e.clientX, e.clientY, items);
+        }
     }
 
     private renderMenu(x: number, y: number, items: MenuEntry[]) {
