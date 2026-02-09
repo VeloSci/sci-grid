@@ -11,6 +11,8 @@ interface SciGridReactProps {
   onSelectionChange?: (info: any) => void;
   onContextMenu?: (row: number, col: number, e: MouseEvent) => void;
   onHeaderContextMenu?: (col: number, e: MouseEvent) => void;
+  onRowNumberContextMenu?: (row: number, e: MouseEvent) => void;
+  getContextMenuItems?: GridConfig['getContextMenuItems'];
 }
 
 /**
@@ -25,7 +27,9 @@ export const SciGridReact = ({
   onSort,
   onSelectionChange,
   onContextMenu,
-  onHeaderContextMenu
+  onHeaderContextMenu,
+  onRowNumberContextMenu,
+  getContextMenuItems
 }: SciGridReactProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const gridRef = useRef<SciGrid | null>(null);
@@ -37,7 +41,9 @@ export const SciGridReact = ({
         onSort,
         onSelectionChange,
         onContextMenu,
-        onHeaderContextMenu
+        onHeaderContextMenu,
+        onRowNumberContextMenu,
+        getContextMenuItems
       });
     }
     return () => {
@@ -61,10 +67,12 @@ export const SciGridReact = ({
         onSort,
         onSelectionChange,
         onContextMenu,
-        onHeaderContextMenu
+        onHeaderContextMenu,
+        onRowNumberContextMenu,
+        getContextMenuItems
       });
     }
-  }, [config, onSort, onSelectionChange, onContextMenu, onHeaderContextMenu]);
+  }, [config, onSort, onSelectionChange, onContextMenu, onHeaderContextMenu, onRowNumberContextMenu, getContextMenuItems]);
 
   return (
     <div 

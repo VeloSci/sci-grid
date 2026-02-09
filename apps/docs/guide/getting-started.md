@@ -43,3 +43,8 @@ const grid = new SciGrid(container, provider);
 Check out the framework guides to see how to integrate SciGrid into your application:
 - [React Integration](./frameworks/react)
 - [Vue Integration](./frameworks/vue)
+
+Learn about SciGrid's interactive features:
+- [Context Menus](./context-menus) — Zone-aware menus with sections, checkboxes, sub-menus, and ARIA.
+- [Keyboard Shortcuts](./keyboard-shortcuts) — Configurable shortcuts with custom actions.
+- [Core Concepts](./core-concepts) — Virtualization, canvas rendering, and the data provider pattern.

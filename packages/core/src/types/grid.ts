@@ -76,11 +76,64 @@ export interface SelectionInfo {
     anchorCol: number | null;
 }
 
+export type ContextMenuZone = 'header' | 'rowNumber' | 'cell' | 'multiCell';
+
+export interface ContextMenuContext {
+    zone: ContextMenuZone;
+    row?: number;
+    col?: number;
+    /** Selected rows (for rowNumber zone or multi-selection) */
+    selectedRows?: number[];
+    /** Selected columns (for header zone) */
+    selectedCols?: number[];
+    /** All current selection ranges */
+    selectionRanges?: SelectionRange[];
+}
+
 export interface ContextMenuItem {
     id?: string;
     label: string;
     action: () => void;
     icon?: string;
+    disabled?: boolean;
+    /** If true, shows a checkmark indicator */
+    checked?: boolean;
+    /** Keyboard shortcut hint displayed on the right (e.g. 'Ctrl+C') */
+    shortcut?: string;
+    /** Sub-items for nested menus */
+    children?: (ContextMenuItem | 'divider' | ContextMenuSection)[];
+}
+
+/** A labeled section header inside a context menu */
+export interface ContextMenuSection {
+    type: 'section';
+    label: string;
+}
+
+/** Describes a keyboard shortcut binding */
+export interface KeyboardShortcut {
+    key: string;
+    ctrl?: boolean;
+    shift?: boolean;
+    alt?: boolean;
+    meta?: boolean;
+}
+
+/** User-configurable keyboard shortcuts for all grid actions */
+export interface KeyboardShortcuts {
+    copy?: KeyboardShortcut | null;
+    selectAll?: KeyboardShortcut | null;
+    moveUp?: KeyboardShortcut | null;
+    moveDown?: KeyboardShortcut | null;
+    moveLeft?: KeyboardShortcut | null;
+    moveRight?: KeyboardShortcut | null;
+    pageUp?: KeyboardShortcut | null;
+    pageDown?: KeyboardShortcut | null;
+    moveToStart?: KeyboardShortcut | null;
+    moveToEnd?: KeyboardShortcut | null;
+    contextMenu?: KeyboardShortcut | null;
+    /** Custom user-defined shortcuts */
+    [action: string]: KeyboardShortcut | null | undefined;
 }
 
 export interface GridConfig extends GridStyle {
@@ -95,10 +148,16 @@ export interface GridConfig extends GridStyle {
     allowResizing: boolean;      // Global toggle
     allowFiltering: boolean;     // Global toggle
     onHeaderContextMenu?: ((col: number, e: MouseEvent) => void) | undefined;
+    onRowNumberContextMenu?: ((row: number, e: MouseEvent) => void) | undefined;
     onContextMenu?: ((row: number, col: number, e: MouseEvent) => void) | undefined;
     onSort?: ((col: number, order: 'asc' | 'desc' | null) => void) | undefined;
-    getContextMenuItems?: (defaultItems: (ContextMenuItem | 'divider')[]) => (ContextMenuItem | 'divider')[];
+    /** @deprecated Use getContextMenuItems with context parameter instead */
+    getContextMenuItems?: (defaultItems: (ContextMenuItem | 'divider' | ContextMenuSection)[], context?: ContextMenuContext) => (ContextMenuItem | 'divider' | ContextMenuSection)[];
     onSelectionChange?: ((info: SelectionInfo) => void) | undefined;
+    /** Configurable keyboard shortcuts. Set an action to null to disable it. */
+    keyboardShortcuts?: Partial<KeyboardShortcuts>;
+    /** Callback for custom keyboard shortcut actions */
+    onShortcut?: ((action: string, e: KeyboardEvent) => void) | undefined;
     emptyStateText?: string;
     persistenceKey?: string;      // Key to save/load state from localStorage
     maskNumericValues?: boolean;  // If true, show #### when number doesn't fit

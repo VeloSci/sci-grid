@@ -31,8 +31,8 @@ This "pull" model means you can connect SciGrid directly to your state managemen
 ## Interactivity
 
 SciGrid comes with desktop-class interactivity built-in:
-- **Context Menus**: Native-feeling menus for quick actions.
+- **Zone-Aware Context Menus**: 4 distinct right-click zones (header, row number, cell, multi-cell) with customizable items, sub-menus, checkboxes, section headers, and full ARIA accessibility. See the [Context Menus guide](./context-menus).
+- **Configurable Keyboard Shortcuts**: Every shortcut is overridable. Define custom actions with `onShortcut`. See the [Keyboard Shortcuts guide](./keyboard-shortcuts).
 - **Auto-Resizing**: Double-click headers to fit content.
 - **Data Export**: Copy-paste compatibility and CSV export.
-- **Keyboard Navigation**: Excel-like shortcuts for power users.
 - **Content Masking**: Automatically mask truncated numeric values (`####`) or text (`...`) to maintain data integrity when columns are narrow.

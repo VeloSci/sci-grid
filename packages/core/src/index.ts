@@ -11,7 +11,7 @@ import { ContextMenuManager } from "./core/context-menu.js";
 import * as Coord from "./core/coord-helper.js";
 import { formatScientificValue } from "./core/units.js";
 
-export type { GridConfig, IDataGridProvider, ViewportState, SelectionInfo, SelectionMode, SelectionRange, ColumnHeaderInfo, GridDataValue, ColumnType } from "./types/grid.js";
+export type { GridConfig, IDataGridProvider, ViewportState, SelectionInfo, SelectionMode, SelectionRange, ColumnHeaderInfo, GridDataValue, ColumnType, ContextMenuItem, ContextMenuSection, ContextMenuZone, ContextMenuContext, KeyboardShortcut, KeyboardShortcuts } from "./types/grid.js";
 
 export class SciGrid {
     private canvas!: HTMLCanvasElement;
@@ -105,29 +105,65 @@ export class SciGrid {
         });
         this.keyboard = new KeyboardHandler(this.state, this.provider, this.config, {
             updateSelection: (m, r, c, ct, s) => this.selection.updateSelection(m, r, c, ct, s), scrollToCell: (r, c) => this.scrollToCell(r, c),
-            copyToClipboard: () => this.data.copyToClipboard(), render: () => this.render()
+            copyToClipboard: () => this.data.copyToClipboard(), render: () => this.render(),
+            openContextMenuAt: (x, y) => this.contextMenu.openAt(x, y)
         });
         this.contextMenu = new ContextMenuManager(this.container, this.config, {
             copyToClipboard: () => this.data.copyToClipboard(),
             exportToCsv: () => this.data.downloadAsCsv(),
             invalidate: () => this.invalidate(),
-            resolveCoords: (e: MouseEvent) => {
+            resolveHit: (e: MouseEvent) => {
                 const { x, y, rnw } = this.mouse.getMousePos(e);
-                if (y < this.state.headerHeight) return null; // Header — handled by resolveHeaderCol
-                const row = Math.floor((y - this.state.headerHeight + this.state.scrollY) / this.config.rowHeight);
-                const relX = x - rnw + this.state.scrollX;
-                const idx = Coord.getColumnAt(this.state, relX);
-                const act = this.state.columnOrder[idx] ?? idx;
-                if (row < 0 || row >= this.provider.getRowCount() || idx === -1) return null;
-                return { row, col: act };
+
+                // Header zone
+                if (y < this.state.headerHeight && x >= rnw) {
+                    const relX = x - rnw + this.state.scrollX;
+                    const idx = Coord.getColumnAt(this.state, relX);
+                    const col = idx === -1 ? -1 : (this.state.columnOrder[idx] ?? idx);
+                    return { zone: 'header', row: -1, col };
+                }
+
+                // Row-number zone
+                if (x < rnw && y >= this.state.headerHeight) {
+                    const row = Math.floor((y - this.state.headerHeight + this.state.scrollY) / this.config.rowHeight);
+                    if (row >= 0 && row < this.provider.getRowCount()) {
+                        return { zone: 'rowNumber', row, col: -1 };
+                    }
+                    return { zone: 'outside', row: -1, col: -1 };
+                }
+
+                // Cell zone
+                if (y >= this.state.headerHeight && x >= rnw) {
+                    const row = Math.floor((y - this.state.headerHeight + this.state.scrollY) / this.config.rowHeight);
+                    const relX = x - rnw + this.state.scrollX;
+                    const idx = Coord.getColumnAt(this.state, relX);
+                    const col = idx === -1 ? -1 : (this.state.columnOrder[idx] ?? idx);
+                    if (row >= 0 && row < this.provider.getRowCount() && col >= 0) {
+                        return { zone: 'cell', row, col };
+                    }
+                }
+
+                return { zone: 'outside', row: -1, col: -1 };
             },
-            resolveHeaderCol: (e: MouseEvent) => {
-                const { x, y, rnw } = this.mouse.getMousePos(e);
-                if (y >= this.state.headerHeight || x < rnw) return null;
-                const relX = x - rnw + this.state.scrollX;
-                const idx = Coord.getColumnAt(this.state, relX);
-                if (idx === -1) return null;
-                return this.state.columnOrder[idx] ?? idx;
+            getSelectionState: () => {
+                const ranges = this.state.selectionRanges;
+                let cellCount = 0;
+                for (const r of ranges) {
+                    cellCount += (r.endRow - r.startRow + 1) * (r.endCol - r.startCol + 1);
+                }
+                // Also count full-column and full-row selections
+                if (this.state.selectionMode === 'column') {
+                    cellCount = Math.max(cellCount, this.state.selectedCols.size * this.provider.getRowCount());
+                } else if (this.state.selectionMode === 'row') {
+                    cellCount = Math.max(cellCount, this.state.selectedRows.size * this.provider.getColumnCount());
+                }
+                return {
+                    selectedRows: Array.from(this.state.selectedRows),
+                    selectedCols: Array.from(this.state.selectedCols),
+                    selectionRanges: ranges,
+                    selectionMode: this.state.selectionMode,
+                    cellCount,
+                };
             }
         });
     }

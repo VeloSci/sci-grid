@@ -48,6 +48,13 @@ export default defineConfig({
           ]
         },
         {
+          text: 'Interactivity',
+          items: [
+            { text: 'Context Menus', link: '/guide/context-menus' },
+            { text: 'Keyboard Shortcuts', link: '/guide/keyboard-shortcuts' },
+          ]
+        },
+        {
           text: 'Advanced',
           items: [
             { text: 'Custom Renderers', link: '/guide/advanced/renderers' },

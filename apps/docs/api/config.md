@@ -23,6 +23,28 @@ The `GridConfig` interface controls the appearance and behavior of the grid.
 | `maskTextValues` | `boolean` | `false` | If `true`, text that exceeds cell width is replaced by `textMaskString`. |
 | `textMaskString` | `string` | `"..."` | The string used to mask truncated text (e.g. `...`, `***`). |
 
+## Event Callbacks
+
+| Property | Type | Description |
+| :--- | :--- | :--- |
+| `onSelectionChange` | `(info: SelectionInfo) => void` | Fired when selection changes. |
+| `onSort` | `(col, order) => void` | Fired when a sortable header is clicked. |
+| `onHeaderContextMenu` | `(col, e) => void` | Right-click on column header. Suppresses built-in menu. |
+| `onRowNumberContextMenu` | `(row, e) => void` | Right-click on row number. Suppresses built-in menu. |
+| `onContextMenu` | `(row, col, e) => void` | Right-click on data cell. Call `e.preventDefault()` to suppress built-in menu. |
+| `getContextMenuItems` | `(defaults, context?) => items` | Customize built-in menu items per zone. See [Events API](./events). |
+| `onShortcut` | `(action, e) => void` | Fired for custom keyboard shortcuts. |
+
+See the [Events API](./events) for full details and examples.
+
+## Keyboard Shortcuts
+
+| Property | Type | Description |
+| :--- | :--- | :--- |
+| `keyboardShortcuts` | `Partial<KeyboardShortcuts>` | Override or disable built-in shortcuts, or define custom ones. |
+
+See the [Keyboard Shortcuts guide](/guide/keyboard-shortcuts) for full details.
+
 ## Styling
 
 | Property | Type | Description |
@@ -35,8 +57,6 @@ The `GridConfig` interface controls the appearance and behavior of the grid.
 | `selectedTextColor` | `string` | Text color for selected cells. |
 | `headerBackground` | `string` | Background color of the header. |
 | `headerTextColor` | `string` | Text color of the header title. |
-
-## Advanced Header Styles
 
 ## Advanced Header Styles
 
