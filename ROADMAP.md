@@ -42,35 +42,96 @@
 
 ---
 
-## v1.2 — Cell Editing & Validation (Marzo–Abril 2026)
+## v1.2 — Cell Editing & Validation ✅
 
-- [ ] **Inline cell editing** — Doble clic o F2 para editar celdas
-- [ ] **Cell validators** — Funciones de validación por columna (`(value) => boolean | string`)
-- [ ] **Undo/Redo stack** — `Ctrl+Z` / `Ctrl+Y` con historial de cambios
-- [ ] **Paste from clipboard** — `Ctrl+V` para pegar datos tabulares desde Excel/Sheets
-- [ ] **Cell formatting rules** — Formato condicional (color por rango de valores, iconos)
-- [ ] **Formula bar** — Barra de fórmulas opcional para ver/editar el valor de la celda activa
+### Editing
+- **Inline cell editing** — Doble clic o `F2` para editar celdas (ya existía, ahora con shortcut configurable)
+- **Cell validators** — `CellValidator` por columna: `(value, row, col) => true | 'error message'`
+- **`onCellEdit` callback** — Notificación después de cada edición con `{ row, col, oldValue, newValue }`
+- **Delete cells** — `Delete` key borra celdas seleccionadas (con undo)
+
+### Undo/Redo
+- **`UndoManager`** — Stack de undo/redo con tamaño configurable (`undoHistorySize`, default: 100)
+- **`Ctrl+Z` / `Ctrl+Y`** — Shortcuts configurables para undo/redo
+- **Paste tracking** — Paste operations se registran como una sola acción de undo
+
+### Clipboard
+- **`Ctrl+V` paste** — Pegar datos tabulares desde Excel/Sheets (tab-separated)
+- **Validación en paste** — Cada celda se valida antes de pegar
+- **Tipo numérico** — Auto-parse de valores numéricos al pegar en columnas numéricas
+
+### Formato Condicional
+- **`CellFormattingRule`** — Reglas con `condition(value, row, col)` y estilos (`backgroundColor`, `textColor`, `fontWeight`, `icon`)
+- **Por columna** — Reglas pueden aplicarse a columnas específicas o a todas
+
+### Formula Bar
+- **`showFormulaBar: true`** — Barra que muestra `ColName:Row` y el valor de la celda activa
+- **Auto-update** — Se actualiza en cada render
+
+### Keyboard Shortcuts (sistema por defecto)
+- **`DEFAULT_SHORTCUTS` exportado** — Objeto con todos los shortcuts por defecto, visible para el usuario
+- **Nuevos defaults**: `Ctrl+V` (paste), `Ctrl+Z` (undo), `Ctrl+Y` (redo), `F2` (edit), `Delete` (delete)
 
 ---
 
-## v1.3 — Filtering & Sorting (Abril–Mayo 2026)
+## v1.3 — Filtering & Sorting ✅
 
-- [ ] **Column filters UI** — Dropdown de filtro en cada header (text, numeric, date)
-- [ ] **Multi-column sort** — Ordenar por múltiples columnas con prioridad
-- [ ] **Filter expressions** — `> 100`, `contains "abc"`, `between 10 and 50`
-- [ ] **Quick filter bar** — Barra global de búsqueda que filtra todas las columnas
-- [ ] **Filter persistence** — Guardar/restaurar filtros activos en localStorage
-- [ ] **Sort indicators** — Iconos de dirección en headers con número de prioridad
+### FilterEngine
+- **`FilterEngine`** — Motor de filtrado/ordenamiento/agrupación exportado como clase pública
+- **13 operadores** — `eq`, `neq`, `gt`, `gte`, `lt`, `lte`, `contains`, `notContains`, `startsWith`, `endsWith`, `between`, `empty`, `notEmpty`
+- **`ColumnFilter`** — `{ col, operator, value, valueTo? }` para cada filtro activo
+- **Quick filter** — Búsqueda global en todas las columnas
+
+### Multi-Column Sort
+- **`SortState[]`** — Array de `{ col, order }` para ordenamiento multi-columna
+- **`addSort(col, order)`** — API pública para agregar/modificar sort
+- **`clearSort()`** — Limpiar todos los sorts
+- **`onSortChange` callback** — Notificación cuando cambia el sort
+
+### Filter API
+- **`addFilter(filter)`** — Agregar/modificar filtro por columna
+- **`removeFilter(col)`** — Eliminar filtro de una columna
+- **`clearFilters()`** — Limpiar todos los filtros
+- **`onFilterChange` callback** — Notificación cuando cambian los filtros
+- **Persistencia** — Filtros se guardan en `config.filters`, compatible con localStorage
+
+### Quick Filter Bar
+- **`showQuickFilter: true`** — Barra de búsqueda global con icono 🔍
+- **`onQuickFilterChange` callback** — Notificación cuando cambia el texto
+
+### DataView
+- **`rebuildDataView()`** — Reconstruye el mapeo virtual → real (filter + sort + group)
+- **`getRealRow(virtualRow)`** — Obtiene el índice real de una fila virtual
+- **`getVisibleRowCount()`** — Cuenta de filas visibles después de filtrar
 
 ---
 
-## v1.4 — Grouping & Aggregation (Mayo–Junio 2026)
+## v1.4 — Grouping & Aggregation ✅
 
-- [ ] **Row grouping** — Agrupar filas por valores de una columna
-- [ ] **Collapsible groups** — Expandir/colapsar grupos con animación
-- [ ] **Group aggregations** — Sum, Avg, Count, Min, Max por grupo
-- [ ] **Footer row** — Fila de totales/resumen al final del grid
-- [ ] **Pinned rows** — Filas fijas (top/bottom) que no scrollean
+### Row Grouping
+- **`GroupConfig`** — `{ col, aggregations? }` para agrupar por columna
+- **`setGroupBy(col, aggregations?)`** — API pública para activar agrupación
+- **`clearGroupBy()`** — Desactivar agrupación
+
+### Collapsible Groups
+- **`toggleGroup(groupValue)`** — Expandir/colapsar un grupo
+- **`GroupInfo`** — `{ value, startIndex, endIndex, collapsed, rowCount }`
+- **Estado persistente** — Grupos colapsados se mantienen entre rebuilds
+
+### Aggregations
+- **5 tipos** — `sum`, `avg`, `count`, `min`, `max`
+- **`FilterEngine.aggregate()`** — Método estático para calcular agregaciones
+- **`getAggregation(col, type)`** — API pública en SciGrid
+- **Por grupo** — Cada grupo puede tener agregaciones independientes
+
+### Footer Row
+- **`FooterRow`** — `{ aggregations: Record<number, AggregationType>, label? }`
+- **Configurable** — `config.footerRow` para activar fila de totales
+
+### Pinned Rows
+- **`PinnedRow`** — `{ position: 'top' | 'bottom', data, style? }`
+- **Estilos custom** — `backgroundColor`, `textColor`, `fontWeight` por fila pinneada
+- **Configurable** — `config.pinnedRows[]` para filas fijas
 
 ---
 

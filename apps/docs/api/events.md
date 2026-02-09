@@ -168,6 +168,53 @@ Triggered when a user presses a **custom** keyboard shortcut (one you defined in
 
 See the [Keyboard Shortcuts guide](/guide/keyboard-shortcuts) for details on configuring shortcuts.
 
+## Cell Editing
+
+### `onCellEdit`
+
+Triggered after a cell value is changed (via inline editing, paste, or the `editCell()` API). The edit is already committed and tracked in the undo stack.
+
+```typescript
+(event: CellEditEvent) => void
+```
+
+#### `CellEditEvent`
+
+```typescript
+interface CellEditEvent {
+    row: number;
+    col: number;
+    oldValue: GridDataValue;
+    newValue: GridDataValue;
+}
+```
+
+## Filtering & Sorting
+
+### `onFilterChange`
+
+Triggered when column filters change (via the filter UI or the `addFilter()`/`removeFilter()` API).
+
+```typescript
+(filters: ColumnFilter[]) => void
+```
+
+### `onSortChange`
+
+Triggered when the multi-column sort state changes (via `addSort()`/`clearSort()`).
+
+```typescript
+(sorts: SortState[]) => void
+```
+
+### `onQuickFilterChange`
+
+Triggered when the quick filter bar text changes.
+
+```typescript
+(text: string) => void
+```
+
 ## DOM Events
 
 Since SciGrid renders to a standard canvas, you can also attach standard DOM listeners to the container if needed for custom behavior.

@@ -8,10 +8,16 @@ import { MouseHandler } from "./core/mouse-handler.js";
 import { DragManager } from "./core/drag-manager.js";
 import { DataManager } from "./core/data-manager.js";
 import { ContextMenuManager } from "./core/context-menu.js";
+import { UndoManager } from "./core/undo-manager.js";
+import { FilterEngine } from "./core/filter-engine.js";
+import type { DataView } from "./core/filter-engine.js";
 import * as Coord from "./core/coord-helper.js";
 import { formatScientificValue } from "./core/units.js";
 
-export type { GridConfig, IDataGridProvider, ViewportState, SelectionInfo, SelectionMode, SelectionRange, ColumnHeaderInfo, GridDataValue, ColumnType, ContextMenuItem, ContextMenuSection, ContextMenuZone, ContextMenuContext, KeyboardShortcut, KeyboardShortcuts } from "./types/grid.js";
+export type { GridConfig, IDataGridProvider, ViewportState, SelectionInfo, SelectionMode, SelectionRange, ColumnHeaderInfo, GridDataValue, ColumnType, ContextMenuItem, ContextMenuSection, ContextMenuZone, ContextMenuContext, KeyboardShortcut, KeyboardShortcuts, CellEditEvent, CellValidator, CellFormattingRule, ColumnFilter, FilterOperator, SortState, AggregationType, GroupConfig, FooterRow, PinnedRow } from "./types/grid.js";
+export { DEFAULT_SHORTCUTS } from "./core/keyboard-handler.js";
+export { FilterEngine } from "./core/filter-engine.js";
+export { UndoManager } from "./core/undo-manager.js";
 
 export class SciGrid {
     private canvas!: HTMLCanvasElement;
@@ -24,6 +30,11 @@ export class SciGrid {
     private drags!: DragManager;
     private data!: DataManager;
     private contextMenu!: ContextMenuManager;
+    private undoMgr!: UndoManager;
+    private filterEngine!: FilterEngine;
+    private dataView: DataView = { rowMap: [], visibleRowCount: 0, groups: [] };
+    private formulaBar: HTMLElement | null = null;
+    private quickFilterBar: HTMLElement | null = null;
     private uiLayer!: HTMLElement;
     private config: GridConfig;
     private state: ViewportState = {
@@ -103,10 +114,17 @@ export class SciGrid {
             openEditor: (r, c) => this.editors.openCellEditor(r, c), openHeaderEditor: (c, s) => this.editors.openHeaderEditor(c, s),
             closeEditor: () => this.editors.closeEditor(), setSelecting: (v) => this.isSelecting = v
         });
+        this.undoMgr = new UndoManager(this.config.undoHistorySize ?? 100);
+        this.filterEngine = new FilterEngine();
         this.keyboard = new KeyboardHandler(this.state, this.provider, this.config, {
             updateSelection: (m, r, c, ct, s) => this.selection.updateSelection(m, r, c, ct, s), scrollToCell: (r, c) => this.scrollToCell(r, c),
             copyToClipboard: () => this.data.copyToClipboard(), render: () => this.render(),
-            openContextMenuAt: (x, y) => this.contextMenu.openAt(x, y)
+            openContextMenuAt: (x, y) => this.contextMenu.openAt(x, y),
+            pasteFromClipboard: () => this.pasteFromClipboard(),
+            undo: () => this.performUndo(),
+            redo: () => this.performRedo(),
+            openEditor: (r, c) => this.editors.openCellEditor(r, c),
+            deleteCells: () => this.deleteSelectedCells(),
         });
         this.contextMenu = new ContextMenuManager(this.container, this.config, {
             copyToClipboard: () => this.data.copyToClipboard(),
@@ -179,6 +197,11 @@ export class SciGrid {
         window.addEventListener("mousemove", e => this.handleWindowMouseMove(e));
         window.addEventListener("mouseup", () => this.handleWindowMouseUp());
         this.updateVirtualSize(); this.requestAnimationFrame();
+        if (this.config.showFormulaBar) this.createFormulaBar();
+        if (this.config.showQuickFilter) this.createQuickFilterBar();
+        if (this.config.filters?.length || this.config.sortState?.length || this.config.groupBy || this.config.quickFilterText) {
+            this.rebuildDataView();
+        }
     }
 
     private resize(w: number, h: number) { this.state.width = w; this.state.height = h; this.renderer.resize(w, h); this.invalidate(); }
@@ -328,6 +351,7 @@ export class SciGrid {
             }
         }
         this.renderer.render(this.state, this.config, this.provider); this.isDirty = false;
+        this.updateFormulaBar();
     }
     public renderNow() { this.render(); }
     private requestAnimationFrame() { const loop = () => { if (this.isDirty) this.render(); requestAnimationFrame(loop); }; requestAnimationFrame(loop); }
@@ -373,5 +397,307 @@ export class SciGrid {
         this.contextMenu.close(); // Close context menu on scroll
         this.render(); 
     }
+    // ── v1.2: Undo / Redo ────────────────────────────────────────────
+
+    public editCell(row: number, col: number, newValue: any) {
+        if (!this.provider.setCellData) return;
+        const oldValue = this.provider.getCellData(row, col);
+
+        // Validate
+        const validator = this.config.validators?.[col];
+        if (validator) {
+            const result = validator(newValue, row, col);
+            if (result !== true) return; // validation failed
+        }
+
+        this.provider.setCellData(row, col, newValue);
+        this.undoMgr.push({ type: 'cell', changes: [{ row, col, oldValue, newValue }] });
+        this.config.onCellEdit?.({ row, col, oldValue, newValue });
+        this.invalidate();
+    }
+
+    private performUndo() {
+        const action = this.undoMgr.undo();
+        if (!action || !this.provider.setCellData) return;
+        for (const c of action.changes) {
+            this.provider.setCellData(c.row, c.col, c.oldValue);
+        }
+        this.invalidate();
+    }
+
+    private performRedo() {
+        const action = this.undoMgr.redo();
+        if (!action || !this.provider.setCellData) return;
+        for (const c of action.changes) {
+            this.provider.setCellData(c.row, c.col, c.newValue);
+        }
+        this.invalidate();
+    }
+
+    // ── v1.2: Paste from clipboard ──────────────────────────────────
+
+    private async pasteFromClipboard() {
+        if (!this.provider.setCellData) return;
+        try {
+            const text = await navigator.clipboard.readText();
+            if (!text) return;
+            const rows = text.split('\n').filter(r => r.length > 0);
+            const startRow = this.state.anchorRow ?? 0;
+            const startCol = this.state.anchorCol ?? 0;
+            const startColIdx = this.state.columnOrder.indexOf(startCol);
+            const changes: { row: number; col: number; oldValue: any; newValue: any }[] = [];
+
+            for (let r = 0; r < rows.length; r++) {
+                const cells = rows[r].split('\t');
+                for (let c = 0; c < cells.length; c++) {
+                    const targetRow = startRow + r;
+                    const targetColIdx = (startColIdx === -1 ? startCol : startColIdx) + c;
+                    const targetCol = this.state.columnOrder[targetColIdx] ?? targetColIdx;
+                    if (targetRow >= this.provider.getRowCount() || targetColIdx >= this.provider.getColumnCount()) continue;
+
+                    const oldValue = this.provider.getCellData(targetRow, targetCol);
+                    let newValue: any = cells[c];
+                    const header = this.provider.getHeader(targetCol);
+                    if (header.type === 'numeric') {
+                        const parsed = parseFloat(newValue);
+                        if (!isNaN(parsed)) newValue = parsed;
+                    }
+
+                    const validator = this.config.validators?.[targetCol];
+                    if (validator && validator(newValue, targetRow, targetCol) !== true) continue;
+
+                    this.provider.setCellData(targetRow, targetCol, newValue);
+                    changes.push({ row: targetRow, col: targetCol, oldValue, newValue });
+                }
+            }
+
+            if (changes.length > 0) {
+                this.undoMgr.push({ type: 'paste', changes });
+                this.invalidate();
+            }
+        } catch { /* clipboard access denied */ }
+    }
+
+    // ── v1.2: Delete selected cells ─────────────────────────────────
+
+    private deleteSelectedCells() {
+        if (!this.provider.setCellData) return;
+        const changes: { row: number; col: number; oldValue: any; newValue: any }[] = [];
+        for (const range of this.state.selectionRanges) {
+            for (let r = range.startRow; r <= range.endRow; r++) {
+                for (let c = range.startCol; c <= range.endCol; c++) {
+                    const oldValue = this.provider.getCellData(r, c);
+                    if (oldValue !== null && oldValue !== undefined && oldValue !== '') {
+                        this.provider.setCellData(r, c, null);
+                        changes.push({ row: r, col: c, oldValue, newValue: null });
+                    }
+                }
+            }
+        }
+        if (changes.length > 0) {
+            this.undoMgr.push({ type: 'cell', changes });
+            this.invalidate();
+        }
+    }
+
+    // ── v1.2: Formula bar ───────────────────────────────────────────
+
+    private createFormulaBar() {
+        if (this.formulaBar) return;
+        const bar = document.createElement('div');
+        Object.assign(bar.style, {
+            position: 'absolute', top: '0', left: '0', width: '100%', height: '28px',
+            backgroundColor: this.config.headerBackground, borderBottom: `1px solid ${this.config.gridLineColor}`,
+            display: 'flex', alignItems: 'center', padding: '0 8px', gap: '8px',
+            font: this.config.font, color: this.config.textColor, zIndex: '20',
+            boxSizing: 'border-box',
+        });
+
+        const cellRef = document.createElement('span');
+        cellRef.style.fontWeight = 'bold';
+        cellRef.style.minWidth = '60px';
+        cellRef.textContent = '';
+        bar.appendChild(cellRef);
+
+        const sep = document.createElement('div');
+        Object.assign(sep.style, { width: '1px', height: '16px', backgroundColor: this.config.gridLineColor });
+        bar.appendChild(sep);
+
+        const valueDisplay = document.createElement('span');
+        valueDisplay.style.flex = '1';
+        valueDisplay.style.overflow = 'hidden';
+        valueDisplay.style.textOverflow = 'ellipsis';
+        valueDisplay.style.whiteSpace = 'nowrap';
+        bar.appendChild(valueDisplay);
+
+        this.formulaBar = bar;
+        (bar as any)._cellRef = cellRef;
+        (bar as any)._valueDisplay = valueDisplay;
+        this.uiLayer.parentElement?.insertBefore(bar, this.uiLayer.parentElement.firstChild);
+    }
+
+    private updateFormulaBar() {
+        if (!this.formulaBar) return;
+        const row = this.state.anchorRow;
+        const col = this.state.anchorCol;
+        const cellRef = (this.formulaBar as any)._cellRef as HTMLElement;
+        const valueDisplay = (this.formulaBar as any)._valueDisplay as HTMLElement;
+
+        if (row !== null && col !== null && row >= 0 && col >= 0) {
+            const header = this.provider.getHeader(col);
+            cellRef.textContent = `${header.name || `Col${col}`}:${row + 1}`;
+            const val = this.provider.getCellData(row, col);
+            valueDisplay.textContent = val !== null && val !== undefined ? String(val) : '';
+        } else {
+            cellRef.textContent = '';
+            valueDisplay.textContent = '';
+        }
+    }
+
+    // ── v1.3: Quick filter bar ──────────────────────────────────────
+
+    private createQuickFilterBar() {
+        if (this.quickFilterBar) return;
+        const bar = document.createElement('div');
+        Object.assign(bar.style, {
+            position: 'absolute', top: this.config.showFormulaBar ? '28px' : '0', left: '0', width: '100%', height: '32px',
+            backgroundColor: this.config.headerBackground, borderBottom: `1px solid ${this.config.gridLineColor}`,
+            display: 'flex', alignItems: 'center', padding: '0 8px', gap: '8px',
+            font: this.config.font, zIndex: '20', boxSizing: 'border-box',
+        });
+
+        const icon = document.createElement('span');
+        icon.textContent = '🔍';
+        icon.style.fontSize = '14px';
+        bar.appendChild(icon);
+
+        const input = document.createElement('input');
+        input.placeholder = 'Quick filter...';
+        input.value = this.config.quickFilterText || '';
+        Object.assign(input.style, {
+            flex: '1', border: 'none', outline: 'none', backgroundColor: 'transparent',
+            color: this.config.textColor, font: this.config.font, pointerEvents: 'auto',
+        });
+        input.oninput = () => {
+            this.config.quickFilterText = input.value;
+            this.config.onQuickFilterChange?.(input.value);
+            this.rebuildDataView();
+            this.invalidate();
+        };
+        bar.appendChild(input);
+
+        this.quickFilterBar = bar;
+        this.uiLayer.parentElement?.insertBefore(bar, this.uiLayer.parentElement.firstChild);
+    }
+
+    // ── v1.3/v1.4: Data view (filter + sort + group) ────────────────
+
+    public rebuildDataView() {
+        this.dataView = this.filterEngine.buildView(
+            this.provider,
+            this.config.filters || [],
+            this.config.sortState || [],
+            this.config.quickFilterText || '',
+            this.config.groupBy
+        );
+        this.updateVirtualSize();
+    }
+
+    /** Get the real row index for a virtual (displayed) row */
+    public getRealRow(virtualRow: number): number {
+        if (this.dataView.rowMap.length === 0) return virtualRow;
+        return this.dataView.rowMap[virtualRow] ?? virtualRow;
+    }
+
+    /** Get visible row count (filtered) */
+    public getVisibleRowCount(): number {
+        if (this.dataView.rowMap.length > 0) return this.dataView.visibleRowCount;
+        return this.provider.getRowCount();
+    }
+
+    // ── v1.3: Sort API ──────────────────────────────────────────────
+
+    public addSort(col: number, order: 'asc' | 'desc') {
+        const sorts = [...(this.config.sortState || [])];
+        const existing = sorts.findIndex(s => s.col === col);
+        if (existing >= 0) sorts[existing] = { col, order };
+        else sorts.push({ col, order });
+        this.config.sortState = sorts;
+        this.config.onSortChange?.(sorts);
+        this.rebuildDataView();
+        this.invalidate();
+    }
+
+    public clearSort() {
+        this.config.sortState = [];
+        this.config.onSortChange?.([]);
+        this.rebuildDataView();
+        this.invalidate();
+    }
+
+    // ── v1.3: Filter API ────────────────────────────────────────────
+
+    public addFilter(filter: import("./types/grid.js").ColumnFilter) {
+        const filters = [...(this.config.filters || [])];
+        const existing = filters.findIndex(f => f.col === filter.col);
+        if (existing >= 0) filters[existing] = filter;
+        else filters.push(filter);
+        this.config.filters = filters;
+        this.config.onFilterChange?.(filters);
+        this.rebuildDataView();
+        this.invalidate();
+    }
+
+    public removeFilter(col: number) {
+        const filters = (this.config.filters || []).filter(f => f.col !== col);
+        this.config.filters = filters;
+        this.config.onFilterChange?.(filters);
+        this.rebuildDataView();
+        this.invalidate();
+    }
+
+    public clearFilters() {
+        this.config.filters = [];
+        this.config.onFilterChange?.([]);
+        this.rebuildDataView();
+        this.invalidate();
+    }
+
+    // ── v1.4: Group API ─────────────────────────────────────────────
+
+    public setGroupBy(col: number, aggregations?: Record<number, import("./types/grid.js").AggregationType>) {
+        this.config.groupBy = { col, aggregations };
+        this.rebuildDataView();
+        this.invalidate();
+    }
+
+    public clearGroupBy() {
+        this.config.groupBy = undefined;
+        this.rebuildDataView();
+        this.invalidate();
+    }
+
+    public toggleGroup(groupValue: string) {
+        this.filterEngine.toggleGroup(groupValue);
+        this.rebuildDataView();
+        this.invalidate();
+    }
+
+    // ── v1.4: Aggregation helper ────────────────────────────────────
+
+    public getAggregation(col: number, type: import("./types/grid.js").AggregationType): any {
+        const rows = this.dataView.rowMap.length > 0 ? this.dataView.rowMap : Array.from({ length: this.provider.getRowCount() }, (_, i) => i);
+        return FilterEngine.aggregate(this.provider, rows, col, type);
+    }
+
+    public getSelection() {
+        return {
+            mode: this.state.selectionMode,
+            ranges: this.state.selectionRanges,
+            anchorRow: this.state.anchorRow,
+            anchorCol: this.state.anchorCol,
+        };
+    }
+
     public destroy() { this.contextMenu.destroy(); this.container.innerHTML = ""; }
 }

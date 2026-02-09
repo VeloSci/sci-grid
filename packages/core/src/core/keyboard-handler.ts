@@ -1,9 +1,14 @@
 import type { ViewportState, GridConfig, IDataGridProvider, KeyboardShortcut } from "../types/grid.js";
 
 /** Default keyboard shortcuts — users can override any of these */
-const DEFAULT_SHORTCUTS: Record<string, KeyboardShortcut> = {
+export const DEFAULT_SHORTCUTS: Record<string, KeyboardShortcut> = {
     copy:        { key: 'c', ctrl: true },
+    paste:       { key: 'v', ctrl: true },
+    undo:        { key: 'z', ctrl: true },
+    redo:        { key: 'y', ctrl: true },
     selectAll:   { key: 'a', ctrl: true },
+    edit:        { key: 'F2' },
+    delete:      { key: 'Delete' },
     moveUp:      { key: 'ArrowUp' },
     moveDown:    { key: 'ArrowDown' },
     moveLeft:    { key: 'ArrowLeft' },
@@ -24,6 +29,11 @@ export class KeyboardHandler {
             updateSelection: (mode: any, r: number | null, c: number | null, ctrl: boolean, shift: boolean) => void;
             scrollToCell: (r: number, c: number) => void;
             copyToClipboard: () => void;
+            pasteFromClipboard: () => void;
+            undo: () => void;
+            redo: () => void;
+            openEditor: (row: number, col: number) => void;
+            deleteCells: () => void;
             render: () => void;
             openContextMenuAt: (x: number, y: number) => void;
         }
@@ -89,6 +99,31 @@ export class KeyboardHandler {
         switch (action) {
             case 'copy':
                 this.actions.copyToClipboard();
+                return;
+
+            case 'paste':
+                e.preventDefault();
+                this.actions.pasteFromClipboard();
+                return;
+
+            case 'undo':
+                e.preventDefault();
+                this.actions.undo();
+                return;
+
+            case 'redo':
+                e.preventDefault();
+                this.actions.redo();
+                return;
+
+            case 'edit':
+                e.preventDefault();
+                if (row >= 0 && col >= 0) this.actions.openEditor(row, col);
+                return;
+
+            case 'delete':
+                e.preventDefault();
+                this.actions.deleteCells();
                 return;
 
             case 'selectAll':

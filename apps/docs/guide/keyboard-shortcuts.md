@@ -7,7 +7,12 @@ SciGrid comes with a full set of keyboard shortcuts for desktop-class navigation
 | Action | Default Key | Description |
 | :--- | :--- | :--- |
 | `copy` | `Ctrl+C` | Copy selected cells to clipboard |
+| `paste` | `Ctrl+V` | Paste tabular data from clipboard |
+| `undo` | `Ctrl+Z` | Undo last edit/paste/delete |
+| `redo` | `Ctrl+Y` | Redo last undone action |
 | `selectAll` | `Ctrl+A` | Select all cells |
+| `edit` | `F2` | Open cell editor on current cell |
+| `delete` | `Delete` | Clear selected cells |
 | `moveUp` | `↑` | Move selection up one row |
 | `moveDown` | `↓` | Move selection down one row |
 | `moveLeft` | `←` | Move selection left one column |
@@ -19,6 +24,18 @@ SciGrid comes with a full set of keyboard shortcuts for desktop-class navigation
 | `contextMenu` | `Shift+F10` | Open context menu at current cell |
 
 All navigation shortcuts support **Shift** for extending the selection range.
+
+### Accessing Defaults Programmatically
+
+The `DEFAULT_SHORTCUTS` object is exported so you can inspect or display the current defaults:
+
+```typescript
+import { DEFAULT_SHORTCUTS } from '@sci-grid/core';
+
+// Show all default shortcuts
+console.log(DEFAULT_SHORTCUTS);
+// { copy: { key: 'c', ctrl: true }, paste: { key: 'v', ctrl: true }, ... }
+```
 
 ## Overriding Shortcuts
 

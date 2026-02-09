@@ -65,3 +65,107 @@ Returns the current selection information.
 ```typescript
 grid.getSelection(): SelectionInfo
 ```
+
+### `editCell(row, col, value)`
+
+Edits a cell value with validation and undo tracking. If a validator is configured for the column and the value fails validation, the edit is silently rejected.
+
+```typescript
+grid.editCell(row: number, col: number, value: any): void
+```
+
+### `addSort(col, order)`
+
+Adds or updates a sort on a column. Supports multi-column sorting.
+
+```typescript
+grid.addSort(col: number, order: 'asc' | 'desc'): void
+```
+
+### `clearSort()`
+
+Removes all active sorts.
+
+```typescript
+grid.clearSort(): void
+```
+
+### `addFilter(filter)`
+
+Adds or updates a filter on a column.
+
+```typescript
+grid.addFilter(filter: ColumnFilter): void
+```
+
+### `removeFilter(col)`
+
+Removes the filter from a specific column.
+
+```typescript
+grid.removeFilter(col: number): void
+```
+
+### `clearFilters()`
+
+Removes all active filters.
+
+```typescript
+grid.clearFilters(): void
+```
+
+### `setGroupBy(col, aggregations?)`
+
+Groups rows by a column, optionally with per-column aggregations.
+
+```typescript
+grid.setGroupBy(col: number, aggregations?: Record<number, AggregationType>): void
+```
+
+### `clearGroupBy()`
+
+Removes row grouping.
+
+```typescript
+grid.clearGroupBy(): void
+```
+
+### `toggleGroup(groupValue)`
+
+Expands or collapses a group by its value.
+
+```typescript
+grid.toggleGroup(groupValue: string): void
+```
+
+### `getAggregation(col, type)`
+
+Computes an aggregation over visible (filtered) rows.
+
+```typescript
+grid.getAggregation(col: number, type: AggregationType): GridDataValue
+```
+
+### `rebuildDataView()`
+
+Rebuilds the internal data view (filter + sort + group). Call this after changing `config.filters`, `config.sortState`, or `config.groupBy` directly.
+
+```typescript
+grid.rebuildDataView(): void
+```
+
+### `getRealRow(virtualRow)`
+
+Maps a virtual (displayed) row index to the real row index in the data provider.
+
+```typescript
+grid.getRealRow(virtualRow: number): number
+```
+
+### `getVisibleRowCount()`
+
+Returns the number of visible rows after filtering.
+
+```typescript
+grid.getVisibleRowCount(): number
+```

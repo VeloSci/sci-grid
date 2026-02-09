@@ -34,6 +34,10 @@ The `GridConfig` interface controls the appearance and behavior of the grid.
 | `onContextMenu` | `(row, col, e) => void` | Right-click on data cell. Call `e.preventDefault()` to suppress built-in menu. |
 | `getContextMenuItems` | `(defaults, context?) => items` | Customize built-in menu items per zone. See [Events API](./events). |
 | `onShortcut` | `(action, e) => void` | Fired for custom keyboard shortcuts. |
+| `onCellEdit` | `(event: CellEditEvent) => void` | Fired after a cell is edited (with undo tracking). |
+| `onFilterChange` | `(filters: ColumnFilter[]) => void` | Fired when filters change. |
+| `onSortChange` | `(sorts: SortState[]) => void` | Fired when multi-column sort changes. |
+| `onQuickFilterChange` | `(text: string) => void` | Fired when quick filter text changes. |
 
 See the [Events API](./events) for full details and examples.
 
@@ -44,6 +48,32 @@ See the [Events API](./events) for full details and examples.
 | `keyboardShortcuts` | `Partial<KeyboardShortcuts>` | Override or disable built-in shortcuts, or define custom ones. |
 
 See the [Keyboard Shortcuts guide](/guide/keyboard-shortcuts) for full details.
+
+## Cell Editing & Validation
+
+| Property | Type | Default | Description |
+| :--- | :--- | :--- | :--- |
+| `validators` | `Record<number, CellValidator>` | `undefined` | Per-column validation functions. Return `true` or error string. |
+| `undoHistorySize` | `number` | `100` | Max undo/redo stack size. |
+| `showFormulaBar` | `boolean` | `false` | Show formula bar displaying active cell reference and value. |
+| `formattingRules` | `CellFormattingRule[]` | `undefined` | Conditional formatting rules. |
+
+## Filtering & Sorting
+
+| Property | Type | Default | Description |
+| :--- | :--- | :--- | :--- |
+| `filters` | `ColumnFilter[]` | `undefined` | Active column filters. |
+| `sortState` | `SortState[]` | `undefined` | Multi-column sort state. |
+| `showQuickFilter` | `boolean` | `false` | Show global quick filter bar. |
+| `quickFilterText` | `string` | `undefined` | Current quick filter text. |
+
+## Grouping & Aggregation
+
+| Property | Type | Default | Description |
+| :--- | :--- | :--- | :--- |
+| `groupBy` | `GroupConfig` | `undefined` | Group rows by a column. |
+| `footerRow` | `FooterRow` | `undefined` | Footer row with aggregations. |
+| `pinnedRows` | `PinnedRow[]` | `undefined` | Pinned rows (top/bottom). |
 
 ## Styling
 
