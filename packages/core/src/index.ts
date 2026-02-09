@@ -113,13 +113,21 @@ export class SciGrid {
             invalidate: () => this.invalidate(),
             resolveCoords: (e: MouseEvent) => {
                 const { x, y, rnw } = this.mouse.getMousePos(e);
-                if (y < this.state.headerHeight) return null; // Header context menu handled separately or via onContextMenu
+                if (y < this.state.headerHeight) return null; // Header — handled by resolveHeaderCol
                 const row = Math.floor((y - this.state.headerHeight + this.state.scrollY) / this.config.rowHeight);
                 const relX = x - rnw + this.state.scrollX;
                 const idx = Coord.getColumnAt(this.state, relX);
                 const act = this.state.columnOrder[idx] ?? idx;
                 if (row < 0 || row >= this.provider.getRowCount() || idx === -1) return null;
                 return { row, col: act };
+            },
+            resolveHeaderCol: (e: MouseEvent) => {
+                const { x, y, rnw } = this.mouse.getMousePos(e);
+                if (y >= this.state.headerHeight || x < rnw) return null;
+                const relX = x - rnw + this.state.scrollX;
+                const idx = Coord.getColumnAt(this.state, relX);
+                if (idx === -1) return null;
+                return this.state.columnOrder[idx] ?? idx;
             }
         });
     }

@@ -15,6 +15,7 @@ export class ContextMenuManager {
             exportToCsv: () => void;
             invalidate: () => void;
             resolveCoords: (e: MouseEvent) => { row: number; col: number } | null;
+            resolveHeaderCol: (e: MouseEvent) => number | null;
         }
     ) {
         this.container.addEventListener('contextmenu', (e) => this.handleContextMenu(e));
@@ -28,7 +29,20 @@ export class ContextMenuManager {
     private handleContextMenu(e: MouseEvent) {
         const coords = this.actions.resolveCoords(e);
         
-        if (this.config.onContextMenu && coords) {
+        // If click is in the header area (coords is null), delegate to onHeaderContextMenu
+        if (!coords) {
+            const headerCol = this.actions.resolveHeaderCol(e);
+            if (headerCol !== null && this.config.onHeaderContextMenu) {
+                e.preventDefault();
+                this.config.onHeaderContextMenu(headerCol, e);
+                return;
+            }
+            // No header handler — suppress default menu for header area
+            e.preventDefault();
+            return;
+        }
+
+        if (this.config.onContextMenu) {
             this.config.onContextMenu(coords.row, coords.col, e);
             if (e.defaultPrevented) return;
         }
