@@ -1,7 +1,7 @@
 {
   "name": "sci-grid-root",
   "private": true,
-  "version": "1.1.0",
+  "version": "1.4.1",
   "description": "High-performance data grid for scientific applications (Workspace Root)",
   "scripts": {
     "dev": "pnpm --filter sci-grid-docs dev",
