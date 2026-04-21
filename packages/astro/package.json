@@ -1,0 +1,15 @@
+{
+  "name": "@velosci-grid/astro",
+  "version": "1.4.1",
+  "type": "module",
+  "main": "./src/index.astro",
+  "types": "./src/index.astro",
+  "dependencies": {
+    "@velosci-grid/core": "workspace:*"
+  },
+  "devDependencies": {
+    "astro": "^4.0.0",
+    "vite": "^5.0.0",
+    "typescript": "^5.5.0"
+  }
+}

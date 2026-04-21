@@ -1,0 +1,32 @@
+{
+  "compilerOptions": {
+    "target": "ESNext",
+    "useDefineForClassFields": true,
+    "module": "ESNext",
+    "lib": ["ESNext", "DOM", "DOM.Iterable"],
+    "skipLibCheck": true,
+
+    /* Bundler mode */
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "jsx": "react-jsx",
+
+    /* Linting */
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true,
+    "baseUrl": ".",
+    "paths": {
+      "@velosci-grid/core": ["packages/core/src/index.ts"],
+      "@velosci-grid/core/*": ["packages/core/src/*"],
+      "@velosci-grid/vue": ["packages/vue/src/index.ts"],
+      "@velosci-grid/react": ["packages/react/src/index.tsx"]
+    }
+  },
+  "include": ["packages/*/src", "apps/*/src"],
+  "exclude": ["**/node_modules", "**/dist"]
+}

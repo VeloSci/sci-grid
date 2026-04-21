@@ -1,0 +1,45 @@
+{
+  "name": "velosci-grid-root",
+  "private": true,
+  "version": "1.4.1",
+  "description": "High-performance data grid for scientific applications (Workspace Root)",
+  "scripts": {
+    "dev": "pnpm --filter velosci-grid-docs dev",
+    "help": "pnpm --filter velosci-grid-docs dev",
+    "build": "pnpm -r build",
+    "test": "vitest",
+    "lint": "pnpm -r lint",
+    "release": "pnpm build && changeset publish",
+    "version": "changeset version"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/VeloSci/velosci-grid.git"
+  },
+  "keywords": [
+    "datagrid",
+    "canvas",
+    "high-performance",
+    "scientific-computing"
+  ],
+  "author": "VeloGrid Contributors",
+  "license": "MIT",
+  "type": "module",
+  "devDependencies": {
+    "@changesets/changelog-github": "^0.5.2",
+    "@changesets/cli": "^2.29.8",
+    "@types/node": "^25.1.0",
+    "@types/react": "^18.3.27",
+    "@types/react-dom": "^18.3.7",
+    "typescript": "^5.5.0",
+    "vite": "^5.0.0",
+    "vitest": "^2.0.0"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "canvas",
+      "esbuild",
+      "sharp"
+    ]
+  }
+}

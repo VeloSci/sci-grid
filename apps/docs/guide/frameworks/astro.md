@@ -1,0 +1,52 @@
+# Astro Integration
+
+The `@velosci-grid/astro` adapter allows you to easily embed VeloGrid in your Astro static or hybrid sites.
+
+## Installation
+
+```bash
+pnpm add @velosci-grid/astro @velo-sci/core
+```
+
+## Usage
+
+Use the component in your `.astro` files. Warning: Since VeloGrid is a client-side library, it will only render on the client.
+
+```astro
+---
+import VeloGrid from '@velosci-grid/astro';
+
+const gridConfig = {
+  rowHeight: 35,
+  showRowNumbers: true
+};
+---
+
+<div class="my-grid-wrapper">
+    <!-- The grid will initialize when available -->
+    <VeloGrid id="main-grid" config={gridConfig} />
+</div>
+
+<script>
+  // You need to emit the provider from client-side script
+  const provider = {
+    getRowCount: () => 100,
+    getColumnCount: () => 10,
+    getCellData: (r, c) => `Cell ${r}-${c}`,
+    getHeader: (c) => ({ name: `Col ${c}` })
+  };
+
+  // Dispatch event to initialize the grid with data
+  window.dispatchEvent(new CustomEvent('velogrid-init-main-grid', {
+    detail: { provider }
+  }));
+</script>
+
+<style>
+.my-grid-wrapper {
+  height: 500px;
+}
+</style>
+```
+
+This event-based approach ensures that your data provider (which might contain complex logic or massive data) stays in the client bundle and isn't serialized unnecessarily during SSG.

@@ -1,0 +1,451 @@
+<script setup lang="ts">
+import { VeloGridVue } from '@velosci-grid/vue';
+import { ref, reactive, computed } from 'vue';
+import type { GridConfig } from '@velosci-grid/core';
+import { useGridTheme } from '../src/composables/useGridTheme';
+
+const { gridConfig } = useGridTheme();
+
+export type Theme = "midnight" | "scientific-dark" | "glass" | "light";
+
+// --- 1. State ---
+const activeTab = ref<'preview' | 'code'>('preview');
+
+// Configuration Controls
+const controls = reactive({
+  rowHeight: 35,
+  showRowNumbers: true,
+  allowResizing: true,
+  headerSubTextCount: 0 as 0 | 1 | 2,
+  includeCustomMenu: false,
+  themeColor: '#4facfe',
+  columnCount: 20,
+  maskNumericValues: false,
+  maskTextValues: false,
+  textMaskString: '...',
+  currentTheme: 'scientific-dark' as Theme
+});
+
+const themeSchemas: Record<Theme, any> = {
+  'scientific-dark': {
+    backgroundColor: '#1e293b', // Lighter slate for better contrast
+    gridLineColor: 'rgba(56, 189, 248, 0.2)',
+    textColor: '#f1f5f9',
+    headerBackground: '#334155',
+    headerTextColor: '#ffffff',
+    rowNumberBackground: '#334155',
+    rowNumberTextColor: '#94a3b8',
+    selectionColor: 'rgba(56, 189, 248, 0.2)',
+    dragHandleColor: '#38bdf8'
+  },
+  midnight: {
+    backgroundColor: '#000000', // Pure black for maximum depth
+    gridLineColor: 'rgba(99, 102, 241, 0.3)',
+    textColor: '#e2e8f0',
+    headerBackground: '#0a0a0a',
+    headerTextColor: 'rgba(255, 255, 255, 0.95)',
+    rowNumberBackground: '#0a0a0a',
+    rowNumberTextColor: '#64748b',
+    selectionColor: 'rgba(99, 102, 241, 0.3)',
+    dragHandleColor: '#6366f1'
+  },
+  glass: {
+    backgroundColor: 'rgba(15, 23, 42, 0.3)',
+    gridLineColor: 'rgba(45, 212, 191, 0.5)',
+    textColor: '#ffffff',
+    headerBackground: 'rgba(255, 255, 255, 0.05)',
+    headerTextColor: '#ffffff',
+    rowNumberBackground: 'rgba(255, 255, 255, 0.05)',
+    rowNumberTextColor: '#cbd5e1',
+    selectionColor: 'rgba(45, 212, 191, 0.3)',
+    dragHandleColor: '#2dd4bf'
+  },
+  light: {
+    backgroundColor: '#f1f5f9',
+    gridLineColor: 'rgba(30, 41, 59, 0.15)',
+    textColor: '#0f172a',
+    headerBackground: '#ffffff',
+    headerTextColor: '#0f172a',
+    rowNumberBackground: '#ffffff',
+    rowNumberTextColor: '#334155',
+    selectionColor: 'rgba(37, 99, 235, 0.3)',
+    dragHandleColor: '#2563eb'
+  }
+};
+
+// --- 2. Data Provider ---
+const rowCount = 1000;
+const provider = computed(() => {
+  const cols = controls.columnCount;
+  return {
+    getRowCount: () => rowCount,
+    getColumnCount: () => cols,
+    getCellData: (r: number, c: number) => {
+      if (c === 0) return r + 1; // ID
+      if (c === 1) return ['Alice', 'Bob', 'Charlie', 'David', 'Eve'][r % 5];
+      // Deterministic "random" logic for Ages and Metrics to prevent flickering
+      if (c === 2) return 20 + ((r * 13) % 40); // Age between 20-60
+      return ((r * c * 137.5) % 1000).toFixed(2); // Random-looking float
+    },
+    getHeader: (c: number) => {
+      const base = {
+        name: c === 0 ? 'ID' : c === 1 ? 'Name' : c === 2 ? 'Age' : `Metric ${c}`,
+        type: (c >= 2 ? 'numeric' : 'text') as 'numeric' | 'text',
+        isResizable: true
+      };
+      
+      if (controls.headerSubTextCount >= 1) {
+        Object.assign(base, { units: c === 2 ? 'yrs' : c > 2 ? 'm/s' : '' });
+      }
+      if (controls.headerSubTextCount >= 2) {
+        Object.assign(base, { description: 'Measured value' });
+      }
+      return base;
+    }
+  };
+});
+
+// --- 3. Dynamic Config ---
+const computedConfig = computed<Partial<GridConfig>>(() => {
+  const activeTheme = themeSchemas[controls.currentTheme];
+  const base: Partial<GridConfig> = {
+    ...gridConfig.value,
+    ...activeTheme,
+    rowHeight: controls.rowHeight,
+    showRowNumbers: controls.showRowNumbers,
+    allowResizing: controls.allowResizing,
+    headerSubTextCount: controls.headerSubTextCount,
+    selectionColor: `${activeTheme.selectionColor}`, // use aligned theme color
+    dragHandleColor: activeTheme.dragHandleColor || controls.themeColor,
+    maskNumericValues: controls.maskNumericValues,
+    maskTextValues: controls.maskTextValues,
+    textMaskString: controls.textMaskString,
+  };
+
+  if (controls.includeCustomMenu) {
+    base.getContextMenuItems = (defaultItems) => {
+      // Example: Filter out 'export-csv' and modify 'refresh'
+      const items = defaultItems.map(item => {
+        if (typeof item !== 'string' && item.id === 'refresh') {
+          return { ...item, label: '🔄 Reload Data', icon: '🔄' };
+        }
+        return item;
+      });
+
+      return [
+        ...items,
+        'divider',
+        { label: '🚀 Custom Action', action: () => alert('Rocket launch initiated!'), icon: '🚀' },
+        { label: '🎨 Colorize', action: () => alert('Colorizing cells... (demo)'), icon: '🎨' }
+      ];
+    };
+  }
+
+  return base;
+});
+
+// --- 4. Code Generation ---
+const generatedCode = computed(() => {
+  let menuCode = '';
+  if (controls.includeCustomMenu) {
+    menuCode = `
+  getContextMenuItems: (items) => {
+    // Modify existing items by ID
+    const newItems = items.map(i => {
+      if (typeof i !== 'string' && i.id === 'refresh') {
+        return { ...i, label: '🔄 Reload Data', icon: '🔄' };
+      }
+      return i;
+    });
+
+    return [
+      ...newItems,
+      'divider',
+      { label: '🚀 Custom Action', action: () => alert('Launch!'), icon: '🚀' }
+    ];
+  },`;
+  }
+
+  return `const grid = new VeloGrid(container, provider, {
+  rowHeight: ${controls.rowHeight},
+  showRowNumbers: ${controls.showRowNumbers},
+  allowResizing: ${controls.allowResizing},
+  headerSubTextCount: ${controls.headerSubTextCount},
+  selectionColor: '${controls.themeColor}4D',
+  dragHandleColor: '${controls.themeColor}',
+  maskNumericValues: ${controls.maskNumericValues},
+  maskTextValues: ${controls.maskTextValues},
+  textMaskString: '${controls.textMaskString}',${menuCode}
+});`;
+});
+
+function copyCode() {
+  navigator.clipboard.writeText(generatedCode.value);
+  alert('Code copied to clipboard!');
+}
+</script>
+
+<template>
+  <div class="playground-wrapper">
+    <!-- Header / Tabs -->
+    <div class="playground-header">
+      <div class="title">Grid Playground</div>
+      <div class="tabs">
+        <button 
+          :class="{ active: activeTab === 'preview' }" 
+          @click="activeTab = 'preview'"
+        >Preview</button>
+        <button 
+          :class="{ active: activeTab === 'code' }" 
+          @click="activeTab = 'code'"
+        >Code</button>
+      </div>
+    </div>
+
+    <div class="playground-body">
+      <!-- Sidebar Controls -->
+      <div class="controls-sidebar">
+        <div class="control-group">
+          <h3>Appearance</h3>
+          <label>
+            <span>Row Height (px)</span>
+            <input type="range" min="20" max="60" v-model.number="controls.rowHeight" />
+            <span class="val">{{ controls.rowHeight }}</span>
+          </label>
+          <label>
+            <span>Theme Preset</span>
+            <select v-model="controls.currentTheme">
+              <option value="scientific-dark">Scientific Dark</option>
+              <option value="midnight">Midnight Depth</option>
+              <option value="glass">Glassmorphism</option>
+              <option value="light">Clean Light</option>
+            </select>
+          </label>
+          <label v-if="controls.currentTheme === 'scientific-dark'">
+            <span>Custom Accent Color</span>
+            <input type="color" v-model="controls.themeColor" />
+          </label>
+          <label class="checkbox">
+            <input type="checkbox" v-model="controls.showRowNumbers" />
+            <span>Show Row Numbers</span>
+          </label>
+          <label class="checkbox">
+            <input type="checkbox" v-model="controls.maskNumericValues" />
+            <span>Mask Numbers (####)</span>
+          </label>
+          <label class="checkbox">
+            <input type="checkbox" v-model="controls.maskTextValues" />
+            <span>Mask Text</span>
+          </label>
+          <label v-if="controls.maskTextValues">
+            <span>Text Mask String</span>
+            <input type="text" v-model="controls.textMaskString" maxlength="10" />
+          </label>
+        </div>
+
+        <div class="control-group">
+          <h3>Headers</h3>
+          <label>
+            <span>Header Detail Level</span>
+            <select v-model.number="controls.headerSubTextCount">
+              <option :value="0">Simple (Name Only)</option>
+              <option :value="1">Detailed (+ Units)</option>
+              <option :value="2">Rich (+ Desc)</option>
+            </select>
+          </label>
+          <label class="checkbox">
+            <input type="checkbox" v-model="controls.allowResizing" />
+            <span>Allow Resizing</span>
+          </label>
+        </div>
+
+        <div class="control-group">
+          <h3>Interaction</h3>
+          <label class="checkbox">
+            <input type="checkbox" v-model="controls.includeCustomMenu" />
+            <span>Custom Context Menu</span>
+          </label>
+          <p class="hint" v-if="controls.includeCustomMenu">
+            Right-click the grid to see "Rocket Launch" action!
+          </p>
+        </div>
+      </div>
+
+      <!-- Main Content Area -->
+      <div class="preview-area">
+        <div v-show="activeTab === 'preview'" class="grid-container">
+          <VeloGridVue :provider="provider" :config="computedConfig" />
+        </div>
+        
+        <div v-show="activeTab === 'code'" class="code-container">
+          <div class="code-actions">
+            <button @click="copyCode">Copy</button>
+          </div>
+          <pre><code>{{ generatedCode }}</code></pre>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+
+<style scoped>
+.playground-wrapper {
+  border: 1px solid var(--vp-c-divider);
+  border-radius: 8px;
+  overflow: hidden;
+  background-color: var(--vp-c-bg);
+  margin: 2rem 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.playground-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 1rem;
+  background-color: var(--vp-c-bg-soft);
+  border-bottom: 1px solid var(--vp-c-divider);
+}
+
+.title {
+  font-weight: 600;
+  color: var(--vp-c-text-1);
+}
+
+.tabs {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.tabs button {
+  padding: 0.25rem 0.75rem;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  background: transparent;
+  color: var(--vp-c-text-2);
+  border: 1px solid transparent;
+  transition: all 0.2s;
+}
+
+.tabs button:hover {
+  color: var(--vp-c-text-1);
+  background-color: var(--vp-c-bg-mute);
+}
+
+.tabs button.active {
+  background-color: var(--vp-c-brand);
+  color: white;
+}
+
+.playground-body {
+  display: flex;
+  height: 500px;
+}
+
+/* Sidebar */
+.controls-sidebar {
+  width: 250px;
+  background-color: var(--vp-c-bg-soft);
+  border-right: 1px solid var(--vp-c-divider);
+  padding: .5rem;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: .5rem;
+  flex-shrink: 0;
+}
+
+.control-group h3 {
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  color: var(--vp-c-text-2);
+  margin-bottom: 0.2rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+.control-group label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  margin-bottom: 0.75rem;
+  font-size: 0.9rem;
+}
+
+.control-group label.checkbox {
+  flex-direction: row;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+}
+
+.control-group input[type="range"] {
+  width: 100%;
+}
+
+.control-group input[type="color"] {
+  width: 100%;
+  height: 30px;
+  border: 1px solid var(--vp-c-divider);
+  border-radius: 4px;
+  padding: 0;
+}
+
+.control-group select {
+  padding: 0.4rem;
+  border-radius: 4px;
+  border: 1px solid var(--vp-c-divider);
+  background-color: var(--vp-c-bg);
+  color: var(--vp-c-text-1);
+}
+
+.val {
+  font-size: 0.8rem;
+  color: var(--vp-c-text-2);
+  align-self: flex-end;
+}
+
+.hint {
+  font-size: 0.8rem;
+  color: var(--vp-c-brand);
+  margin-top: -0.25rem;
+}
+
+/* Main Area */
+.preview-area {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+}
+
+.grid-container {
+  width: 100%;
+  height: 100%;
+}
+
+.code-container {
+  padding: 1rem;
+  height: 100%;
+  overflow: auto;
+  background-color: var(--vp-code-block-bg);
+  font-family: var(--vp-font-family-mono);
+  font-size: 0.9rem;
+  position: relative;
+}
+
+.code-actions {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+}
+
+.code-actions button {
+  padding: 0.25rem 0.5rem;
+  background: var(--vp-c-brand);
+  color: white;
+  border-radius: 4px;
+  font-size: 0.8rem;
+}
+</style>

@@ -1,0 +1,35 @@
+{
+  "name": "@velosci-grid/vue",
+  "version": "1.4.1",
+  "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "peerDependencies": {
+    "vue": ">=3.0.0",
+    "@velosci-grid/core": "workspace:*"
+  },
+  "scripts": {
+    "build": "vite build"
+  },
+  "devDependencies": {
+    "vue": "^3.5.0",
+    "@vitejs/plugin-vue": "^5.0.0",
+    "@testing-library/vue": "^7.0.0",
+    "jsdom": "^22.0.0",
+    "typescript": "^5.5.0",
+    "vite": "^5.0.0",
+    "vite-plugin-dts": "^4.0.0"
+  }
+}
